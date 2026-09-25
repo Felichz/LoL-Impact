@@ -114,6 +114,7 @@ def profile(riot_id: str, region: str = "LAS"):
         entry = {
             "match_id": mid, "champ": me["championName"], "role": me["teamPosition"],
             "win": bool(me["win"]),
+            "side": "blue" if me["teamId"] == 100 else "red",
             "kda": [me["kills"], me["deaths"], me["assists"]],
             "duration_min": round(m["info"]["gameDuration"] / 60),
             "patch": ".".join(m["info"]["gameVersion"].split(".")[:2]),

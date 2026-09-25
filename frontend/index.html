@@ -9,9 +9,12 @@
 </head>
 <body>
 <header>
-  <h1>LoL<span>Impact</span></h1>
+  <div class="brand">
+    <h1>LoL<span>Impact</span></h1>
+    <p class="brand-sub">qué movió tus partidas — con la duda a la vista</p>
+  </div>
   <nav>
-    <button data-view="historial" class="active">Historial</button>
+    <button data-view="historial" class="active">Mis partidas</button>
     <button data-view="draft">Draft</button>
   </nav>
   <div class="profile-box">
@@ -20,7 +23,7 @@
       <option selected>LAS</option><option>LAN</option><option>NA</option>
       <option>EUW</option><option>EUNE</option><option>KR</option>
     </select>
-    <button id="btnLoad">Cargar</button>
+    <button id="btnLoad">Cargar perfil</button>
   </div>
   <div id="health" class="health"></div>
 </header>
@@ -28,52 +31,70 @@
 <div id="bannerDegradado" class="banner hidden"></div>
 
 <main>
-  <!-- HISTORIAL -->
+  <!-- ================= HISTORIAL ================= -->
   <section id="view-historial" class="view">
     <div id="patron" class="card patron hidden"></div>
+
     <div id="historial" class="card">
-      <p class="placeholder">Carga tu perfil para ver el historial con la curva
-      de win probability de cada partida.</p>
+      <p class="placeholder">Carga tu perfil para ver tus partidas.</p>
     </div>
+
     <div id="detalle" class="hidden">
+
       <div class="card hero-card">
         <div class="card-head">
           <h2 id="detTitle">Partida</h2>
           <div id="detMeta"></div>
         </div>
+        <p class="card-sub">Probabilidad de que gane <b>tu equipo</b> en cada minuto,
+        calculada con el oro y CS de los 10 jugadores. La franja gris es la duda
+        del modelo: cuanto más ancha, menos seguro está.</p>
         <div id="chartCurve" class="chart-lg"></div>
-        <p class="chart-note">Banda gris = incertidumbre del modelo (IC de
-        credibilidad 95%). La confianza del modelo crece con el minuto.</p>
+        <p class="chart-note"><span class="dot"></span> 50% = partida al azar ·
+        pasa el mouse por los puntos para ver el detalle por minuto.</p>
       </div>
+
       <div class="card">
-        <div class="card-head"><h3>Impacto por carril en el tiempo
-          <span class="chip grey">correlacional</span></h3></div>
+        <div class="card-head"><h3>¿Qué línea movió la aguja?</h3></div>
+        <p class="card-sub">Cuánto sumó o restó cada línea a la probabilidad de
+        tu equipo, minuto a minuto. <b>Arriba del 0 = a tu favor.</b></p>
         <div id="chartLanes" class="chart-md"></div>
-        <p class="chart-note">Punto sólido = efecto identificado · punto hueco =
-        el IC cubre cero (indicativo). Positivo empuja al lado azul, negativo al rojo.</p>
+        <p class="chart-note"><b>Punto lleno</b>
+          <span data-tip="El modelo distingue ese efecto del ruido con 95% de confianza.">●</span>
+          efecto confirmado · <b>punto hueco</b>
+          <span data-tip="El intervalo de confianza incluye el 0: el número es indicativo, no está confirmado.">○</span>
+          el modelo no está seguro (míralo con recelo).</p>
       </div>
+
       <div class="card">
-        <div class="card-head"><h3>Jugadores por landmark</h3>
-          <select id="lmSelector"></select></div>
+        <div class="card-head">
+          <h3>Detalle por jugador</h3>
+          <label class="inline-label">minuto:
+            <select id="lmSelector"></select>
+          </label>
+        </div>
         <div id="tablaJugadores" class="table-wrap"></div>
+        <p class="chart-note">Tu equipo primero, marcado con
+          <span class="chip you">TÚ</span>. Los datos son del minuto seleccionado,
+          no del final de la partida.</p>
       </div>
     </div>
   </section>
 
-  <!-- DRAFT -->
+  <!-- ================= DRAFT ================= -->
   <section id="view-draft" class="view hidden">
     <div class="card">
       <div class="card-head">
-        <h3>Draft: ¿a quién negarle oro? <span class="chip grey">por clase</span></h3>
-        <button id="btnDraft">Evaluar</button>
+        <h3>¿A quién NO dejarle oro? <span class="chip grey"
+          data-tip="El modelo mide por CLASE de campeón (posición + tipo). Con estos datos no puede distinguir a un campeón concreto de su clase: cualquier app que lo afirme con este volumen de datos está exagerando.">por clase</span></h3>
+        <button id="btnDraft">Evaluar draft</button>
       </div>
-      <p class="chart-note">El modelo sabe convertir oro en winrate por
-      <b>clase</b> (rol + tags). No puede distinguir a un campeón concreto de
-      su clase — cualquier app que te lo diga con este tamaño de datos te
-      está mintiendo.</p>
+      <p class="card-sub">Elige los 10 campeones y verás cuánto "rinde" el oro de
+        cada uno: <span class="pp-tip" data-tip="Puntos porcentuales de probabilidad de victoria que gana su equipo por cada 1000 de oro de ventaja que tenga un jugador de esa clase. Ej.: +15pp = con 1000g de ventaja, su equipo pasa de 50% a ~65%.">pp por cada 1000g
+        <b>(?)</b></span> de ventaja.</p>
       <div class="draft-grid">
-        <div><h4>Tu equipo (azul)</h4><div id="bluePicks" class="picks"></div></div>
-        <div><h4>Enemigos (rojo)</h4><div id="redPicks" class="picks"></div></div>
+        <div><h4>Tu equipo</h4><div id="bluePicks" class="picks"></div></div>
+        <div><h4>Equipo enemigo</h4><div id="redPicks" class="picks"></div></div>
       </div>
       <div id="draftOut"></div>
     </div>
@@ -81,9 +102,8 @@
 </main>
 
 <footer>
-  LoLImpact no está afiliado ni respaldado por Riot Games. League of Legends
-  es propiedad de Riot Games, Inc. Datos y modelos: proyecto personal
-  (Esmeralda+ LAS, ~30k partidas).
+  LoLImpact no está afiliado ni respaldado por Riot Games. League of Legends es
+  propiedad de Riot Games, Inc. · Modelo entrenado con ~30k partidas Esmeralda+ LAS.
 </footer>
 <script src="/static/app.js"></script>
 </body>

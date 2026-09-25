@@ -1,4 +1,4 @@
-/* LoLImpact — dark, uncertainty-first */
+/* LoLImpact — dark, claro y explicado */
 :root {
   --bg: #0d1117; --panel: #161b22; --border: #30363d;
   --text: #e6edf3; --muted: #8b949e;
@@ -7,111 +7,171 @@
 * { box-sizing: border-box; margin: 0; }
 body {
   background: var(--bg); color: var(--text);
-  font: 14px/1.5 "Segoe UI", system-ui, sans-serif;
+  font: 14px/1.55 "Segoe UI", system-ui, sans-serif;
 }
+
+/* ---------- tooltips (presente en TODOS los encabezados dudosos) ---------- */
+[data-tip] { position: relative; cursor: help; }
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%);
+  background: #010409; color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 12px; font-size: 12.5px; font-weight: 400;
+  line-height: 1.5; white-space: normal; text-align: left;
+  width: max-content; max-width: 300px; z-index: 99;
+  box-shadow: 0 6px 16px rgba(0,0,0,.55);
+  pointer-events: none;
+}
+[data-tip]:hover::before {
+  content: ""; position: absolute; bottom: calc(100% + 3px); left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: var(--border);
+}
+
+/* ---------- header ---------- */
 header {
-  display: flex; align-items: center; gap: 16px; padding: 12px 20px;
+  display: flex; align-items: center; gap: 20px; padding: 14px 24px;
   background: var(--panel); border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
 }
-h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
-h1 span { color: var(--blue); }
+.brand h1 { font-size: 20px; font-weight: 800; letter-spacing: .3px; }
+.brand h1 span { color: var(--blue); }
+.brand-sub { font-size: 12px; color: var(--muted); }
 nav { display: flex; gap: 6px; }
 nav button {
   background: none; border: 1px solid transparent; color: var(--muted);
-  padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 14px;
+  padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px;
 }
-nav button.active { color: var(--text); background: #21262d; }
+nav button.active { color: var(--text); background: #21262d; font-weight: 600; }
 nav button:hover { color: var(--text); }
 .profile-box { margin-left: auto; display: flex; gap: 6px; }
-input, select, button.btn {
+input, select {
   background: #0d1117; border: 1px solid var(--border); color: var(--text);
-  border-radius: 6px; padding: 7px 10px; font-size: 14px;
+  border-radius: 8px; padding: 8px 12px; font-size: 14px;
 }
 button.btn, #btnLoad, #btnDraft {
   background: #1f6feb; border: none; color: white; font-weight: 600;
-  cursor: pointer; border-radius: 6px; padding: 7px 14px;
+  cursor: pointer; border-radius: 8px; padding: 8px 16px;
 }
-button:disabled { opacity: 0.5; cursor: wait; }
+button:active { transform: translateY(1px); }
 .health { font-size: 12px; color: var(--muted); }
 .health b { color: var(--green); }
 
 .banner {
-  background: #3d2e00; color: var(--gold); padding: 10px 20px;
+  background: #3d2e00; color: var(--gold); padding: 10px 24px;
   border-bottom: 1px solid var(--border); font-size: 13px;
 }
 .hidden { display: none !important; }
 
-main { padding: 20px; max-width: 1200px; margin: 0 auto; }
+/* ---------- tarjetas ---------- */
+main { padding: 24px; max-width: 1200px; margin: 0 auto; }
 .card {
   background: var(--panel); border: 1px solid var(--border);
-  border-radius: 10px; padding: 16px; margin-bottom: 16px;
+  border-radius: 12px; padding: 20px; margin-bottom: 18px;
 }
 .card-head {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 6px; flex-wrap: wrap; gap: 8px;
 }
-h2 { font-size: 16px; } h3 { font-size: 14px; } h4 { font-size: 13px; color: var(--muted); }
-.placeholder { color: var(--muted); text-align: center; padding: 40px 0; }
+.card-sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; max-width: 70ch; }
+h2 { font-size: 17px; } h3 { font-size: 15px; } h4 { font-size: 13px; color: var(--muted); }
+.placeholder { color: var(--muted); text-align: center; padding: 48px 0; }
 .chart-lg { height: 340px; }
-.chart-md { height: 260px; }
-.chart-note { color: var(--muted); font-size: 12px; margin-top: 8px; }
+.chart-md { height: 280px; }
+.chart-note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+.dot { display:inline-block; width:8px; height:8px; border-radius:50%;
+       background:#8b949e; margin-right:2px; }
+.inline-label { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
 
+/* ---------- chips ---------- */
 .chip {
-  display: inline-block; padding: 1px 8px; border-radius: 10px;
-  font-size: 11px; font-weight: 600; vertical-align: middle;
+  display: inline-block; padding: 1px 9px; border-radius: 10px;
+  font-size: 11px; font-weight: 700; vertical-align: middle;
 }
 .chip.green { background: #0f2e17; color: var(--green); }
 .chip.grey { background: #21262d; color: var(--muted); }
-.chip.red { background: #3d1418; color: var(--red); }
+.chip.you { background: #1f3a5f; color: var(--blue); }
+.badge { padding: 2px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; }
+.badge.win { background: #0f2e17; color: var(--green); }
+.badge.loss { background: #3d1418; color: var(--red); }
 
-/* historial */
+/* ---------- historial ---------- */
+.hist-head, .match-row {
+  display: grid; grid-template-columns: 130px 100px 56px 130px 1fr 40px;
+  gap: 12px; align-items: center;
+}
+.hist-head {
+  color: var(--muted); font-size: 11.5px; text-transform: uppercase;
+  letter-spacing: .4px; padding: 4px 14px 10px; border-bottom: 1px solid var(--border);
+}
+.hist-head [data-tip] { text-transform: none; letter-spacing: 0; }
 .match-row {
-  display: flex; align-items: center; gap: 14px; padding: 10px 12px;
-  border-bottom: 1px solid var(--border); cursor: pointer;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .12s;
 }
 .match-row:hover { background: #1c2129; }
 .match-row.win { border-left: 3px solid var(--green); }
 .match-row.loss { border-left: 3px solid var(--red); }
-.mr-champ { width: 120px; font-weight: 600; }
-.mr-kda { width: 110px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.mr-dur { width: 60px; color: var(--muted); }
-.mr-spark { flex: 1; height: 40px; }
-.mr-gold { width: 110px; text-align: right; font-variant-numeric: tabular-nums; }
-.mr-gold b { font-weight: 600; }
+.mr-champ { font-weight: 700; }
+.mr-champ small { display: block; color: var(--muted); font-weight: 400; font-size: 11px; }
+.mr-kda, .mr-dur { color: var(--muted); font-variant-numeric: tabular-nums; }
+.mr-gold { font-variant-numeric: tabular-nums; }
+.mr-gold b { font-weight: 700; }
+.mr-gold .sub { color: var(--muted); font-size: 11px; display: block; }
+.mr-arrow { color: var(--muted); text-align: right; }
 
-/* patron personal */
-.patron { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
-.patron .big { font-size: 20px; font-weight: 700; }
+/* ---------- patrón personal ---------- */
+.patron { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
+.patron .big { font-size: 22px; font-weight: 800; }
 .patron .sub { color: var(--muted); font-size: 12px; }
+.patron .sep { width: 1px; align-self: stretch; background: var(--border); }
 
-/* tabla jugadores */
+/* ---------- tabla jugadores ---------- */
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th { color: var(--muted); text-align: left; padding: 6px 10px; font-weight: 600; }
-td { padding: 6px 10px; border-top: 1px solid var(--border); font-variant-numeric: tabular-nums; }
-td.side-b { border-left: 3px solid var(--blue); }
-td.side-r { border-left: 3px solid var(--red); }
-.pos { color: var(--green); } .neg { color: var(--red); }
-.pct-bar { position: relative; background: #21262d; border-radius: 4px; height: 14px; width: 90px; }
-.pct-fill { position: absolute; left: 0; top: 0; bottom: 0; background: #1f6feb66; border-radius: 4px; }
-.pct-num { position: relative; z-index: 1; font-size: 11px; padding-left: 4px; line-height: 14px; color: var(--text); }
-
-/* draft */
-.draft-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
-.picks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.picks label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px; }
-.picks select { width: 100%; }
-.draft-card {
-  background: #0d1117; border: 1px solid var(--border); border-radius: 8px;
-  padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+th {
+  color: var(--muted); text-align: left; padding: 8px 12px; font-weight: 600;
+  border-bottom: 2px solid var(--border); white-space: nowrap;
 }
-.draft-card .pp { font-size: 18px; font-weight: 700; width: 110px; }
-.draft-card .ppbar { flex: 1; height: 8px; background: #21262d; border-radius: 4px; position: relative; }
-.draft-card .ppbar-fill { position: absolute; left: 50%; top: 0; bottom: 0; border-radius: 4px; }
-.draft-card .who { width: 160px; }
-.draft-card .sub { font-size: 11px; color: var(--muted); }
+th[data-tip] { border-bottom: 2px dotted #484f58; }
+th .th-q { color: #58a6ff; font-weight: 700; margin-left: 3px; }
+td { padding: 8px 12px; border-top: 1px solid #21262d; font-variant-numeric: tabular-nums; }
+tr.team-sep td { height: 10px; border: none; background: #0d1117; }
+.you-row td { background: #12233b; }
+.pos { color: var(--green); font-weight: 600; }
+.neg { color: var(--red); font-weight: 600; }
+.pct-bar { position: relative; background: #21262d; border-radius: 5px;
+           height: 16px; width: 100px; overflow: hidden; }
+.pct-fill { position: absolute; left: 0; top: 0; bottom: 0; background: #1f6feb88; }
+.pct-num { position: absolute; inset: 0; text-align: center; font-size: 11px;
+           line-height: 16px; color: var(--text); font-weight: 600; }
+
+/* ---------- draft ---------- */
+.draft-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 14px; }
+.picks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+.picks label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 3px; }
+.picks select { width: 100%; }
+.pp-tip { color: var(--blue); cursor: help; border-bottom: 1px dotted var(--blue); }
+.draft-card {
+  background: #0d1117; border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 14px;
+}
+.draft-card .who { width: 170px; }
+.draft-card .who b { font-size: 15px; }
+.draft-card .who .sub { font-size: 11px; color: var(--muted); }
+.draft-card .pp { font-size: 20px; font-weight: 800; width: 120px;
+                  font-variant-numeric: tabular-nums; }
+.draft-card .pp small { font-size: 10px; color: var(--muted); font-weight: 400; display: block; }
+.draft-card .ppbar { flex: 1; height: 10px; background: #21262d;
+                     border-radius: 5px; position: relative; overflow: hidden; }
+.draft-card .ppbar-fill { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
+.draft-card .ppbar .mid { position: absolute; left: 50%; top: -2px; bottom: -2px;
+                          width: 1px; background: #484f58; }
 
 footer {
   text-align: center; color: var(--muted); font-size: 11px;
-  padding: 20px; border-top: 1px solid var(--border); margin-top: 40px;
+  padding: 24px; border-top: 1px solid var(--border); margin-top: 40px;
 }
