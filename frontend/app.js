@@ -332,6 +332,45 @@ function renderTable() {
     "</tbody></table>";
 }
 
+// ============ en vivo ============
+$("#btnLive").onclick = async () => {
+  const rid = $("#riotId").value.trim();
+  const out = $("#liveOut");
+  out.innerHTML = '<p class="placeholder">Consultando…</p>';
+  const r = await fetch(`/api/live?riot_id=${encodeURIComponent(rid)}&region=${$("#region").value}`);
+  const d = await r.json();
+  if (!d.en_partida) {
+    out.innerHTML = `<p class="placeholder">${d.mensaje || "Sin partida en curso."}</p>`;
+    return;
+  }
+  const mine = d.tu_lado, enemy = mine === "blue" ? "red" : "blue";
+  const card = (x, side) => {
+    const col = side === "enemy" ? "#f85149" : "#3fb950";
+    return `<div class="draft-card">
+      <div class="who"><b>${x.champ}</b><br>
+        <span class="sub">${ROLE_ES[x.role] || x.role} · clase: ${x.tags.join(" / ") || "—"}</span></div>
+      <div class="pp" style="color:${col}">
+        ${SIGN(x.kill2)}${x.kill2}pp
+        <small>si se pone 2-0 (+${x.kill1}pp con 1)</small></div>
+      <div class="ppbar"><div class="mid"></div>
+        <div class="ppbar-fill" style="
+          ${x.kill2 >= 0 ? `left:50%;width:${Math.min(Math.abs(x.kill2) / 25 * 50, 50)}%`
+                         : `right:50%;width:${Math.min(Math.abs(x.kill2) / 25 * 50, 50)}%`};
+          background:${col};opacity:${x.identificado ? 0.9 : 0.35}"></div></div>
+      ${x.identificado
+        ? '<span class="chip green" data-tip="Efecto distinguido del ruido con 95% de confianza.">● confirmado</span>'
+        : '<span class="chip grey" data-tip="El IC incluye el 0: indicativo.">◐ indicativo</span>'}
+    </div>`;
+  };
+  out.innerHTML = `
+    <div class="live-meta">${d.gameMode} · min ${d.minutos} ·
+      <span style="color:#8b949e">${d.nota}</span></div>
+    <h4>Enemigos — mientras más alto, MÁS PELIGROSO dejarle kills</h4>
+    ${[...d[enemy]].sort((a, b) => b.kill2 - a.kill2).map((x) => card(x, "enemy")).join("")}
+    <h4 style="margin-top:16px">Tu equipo — donde tus kills tempranas valen más</h4>
+    ${[...d[mine]].sort((a, b) => b.kill2 - a.kill2).map((x) => card(x, "mine")).join("")}`;
+};
+
 // ============ draft ============
 async function loadChamps() {
   const v = (await (await fetch(

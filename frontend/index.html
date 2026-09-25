@@ -15,6 +15,7 @@
   </div>
   <nav>
     <button data-view="historial" class="active">Mis partidas</button>
+    <button data-view="live">En vivo</button>
     <button data-view="draft">Draft</button>
   </nav>
   <div class="profile-box">
@@ -78,6 +79,22 @@
           <span class="chip you">TÚ</span>. Los datos son del minuto seleccionado,
           no del final de la partida.</p>
       </div>
+    </div>
+  </section>
+
+  <!-- ================= EN VIVO ================= -->
+  <section id="view-live" class="view hidden">
+    <div class="card">
+      <div class="card-head">
+        <h3>Partida en curso <span class="chip green"
+          data-tip="Detecta tu partida activa vía la API de Riot y evalúa los 10 campeones. Solo funciona mientras juegas (o consultas otra cuenta).">●</span></h3>
+        <button id="btnLive">Detectar partida</button>
+      </div>
+      <p class="card-sub">Qué rentan las kills tempranas de cada línea.
+        <b>1 kill ≈ intercambio de 600g</b> en la línea (+300 el asesino, −300 la
+        víctima; sin contar placas ni experiencia).</p>
+      <div id="liveOut"><p class="placeholder">Pulsa "Detectar partida" mientras
+        estés en cola o jugando.</p></div>
     </div>
   </section>
 

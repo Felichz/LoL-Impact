@@ -18,7 +18,7 @@ from pydantic import BaseModel
 
 from . import analysis, build_index
 from .features import ROLES, TAG_KEYS, champ_tags
-from .riot import RiotClient, load_json, resolve_riot_id, save_json
+from .riot import PLATFORM, RiotClient, load_json, resolve_riot_id, save_json
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 CACHE_DIR = os.path.join(DATA_DIR, "cache")
@@ -214,6 +214,107 @@ def draft(d: Draft):
                     "no es distinguible de su clase con los datos actuales"),
            "tags_identificables": [t for t in TAG_KEYS
                                    if abs(beta.get(f"tag_gold:{t}", 0)) > 0]}
+    return out
+
+
+def _champ_id_map():
+    """championId (int) -> nombre via Data Dragon, cacheado."""
+    import urllib.request
+    p = os.path.join(CACHE_DIR, "champions.json")
+    m = load_json(p)
+    if m:
+        return m
+    v = json.loads(urllib.request.urlopen(
+        "https://ddragon.leagueoflegends.com/api/versions.json", timeout=20).read())[0]
+    data = json.loads(urllib.request.urlopen(
+        f"https://ddragon.leagueoflegends.com/cdn/{v}/data/es_ES/champion.json",
+        timeout=20).read())["data"]
+    m = {int(c["key"]): c["id"] for c in data.values()}
+    save_json(p, m)
+    return m
+
+
+def _infer_roles(champs):
+    """Rol sugerido por tags; el usuario puede corregirlo en la UI."""
+    from .features import champ_tags
+    taken = set()
+    out = {}
+    prioridad = [("UTILITY", lambda t: "Support" in t),
+                 ("BOTTOM", lambda t: "Marksman" in t and "Support" not in t),
+                 ("MIDDLE", lambda t: "Mage" in t or "Assassin" in t),
+                 ("TOP", lambda t: "Tank" in t or "Fighter" in t)]
+    for rol, test in prioridad:
+        for c in champs:
+            if c in out:
+                continue
+            if test(champ_tags(c)):
+                out[c] = rol
+                break
+    for c in champs:
+        if c not in out:
+            out[c] = "JUNGLE"
+    return out
+
+
+@app.get("/api/live")
+def live(riot_id: str, region: str = "LAS"):
+    """Partida en curso: que lane rentan mas las kills tempranas.
+
+    Asumcion explicita: 1 kill en linea = intercambio de ~600g en el
+    diferencial (+300 asesino, -300 victima), sin placas ni EXP.
+    """
+    import math as _m
+    name, _, tag = riot_id.partition("#")
+    if not client.alive:
+        raise HTTPException(503, "sin claves API vivas")
+    puuid, key = resolve_riot_id(client, name, tag or region)
+    if not puuid:
+        raise HTTPException(404, "cuenta no encontrada")
+    host = PLATFORM.get(region, "la2")
+    game = client.get(
+        f"https://{host}.api.riotgames.com/lol/spectator/v5/"
+        f"active-games/by-summoner/{puuid}", key=key)
+    if game is None:
+        return {"en_partida": False,
+                "mensaje": "No hay partida en curso para esa cuenta."}
+    idmap = _champ_id_map()
+    champs = {}
+    for t in (100, 200):
+        members = [idmap.get(p["championId"], f"?{p['championId']}")
+                   for p in game["participants"] if p["teamId"] == t]
+        champs["blue" if t == 100 else "red"] = members
+    roles = {**_infer_roles(champs["blue"]), **_infer_roles(champs["red"])}
+
+    L = analysis.model()["landmarks"].get("8") or analysis.model()["landmarks"]["10"]
+    beta = L["coefs"]
+    order = L["col_order"]
+    cov = {a: dict(zip(order, row)) for a, row in zip(order, L["cov"])}
+
+    def conv(champ, role):
+        nm = f"rol_gold:{role}"
+        tags = champ_tags(champ)
+        slope = beta.get(nm, 0.0) + sum(beta.get(f"tag_gold:{t}", 0.0) for t in tags)
+        var = cov.get(nm, {}).get(nm, 0.0) + sum(
+            cov.get(f"tag_gold:{t}", {}).get(f"tag_gold:{t}", 0.0) for t in tags)
+        se = _m.sqrt(max(var, 0.0)) * 25
+        pp1000 = slope * 25
+        return {"champ": champ, "role": role, "tags": tags,
+                "pp1000": round(pp1000, 1), "se": round(se, 1),
+                "kill1": round(pp1000 * 0.6, 1), "kill2": round(pp1000 * 1.2, 1),
+                "se_kill2": round(se * 1.2, 1),
+                "identificado": bool(abs(pp1000) > 1.96 * se)}
+
+    out = {"en_partida": True, "gameMode": game.get("gameMode"),
+           "minutos": round(game.get("gameLength", 0) / 60, 1),
+           "nota": "1 kill temprana ≈ intercambio de 600g en la línea "
+                   "(+300 asesino, −300 víctima), sin placas ni EXP. "
+                   "Impacto por CLASE, min 8.",
+           "blue": [], "red": []}
+    me_team = next((p["teamId"] for p in game["participants"] if p["puuid"] == puuid), None)
+    out["tu_lado"] = "blue" if me_team == 100 else "red"
+    for side in ("blue", "red"):
+        for c in champs[side]:
+            out[side].append(conv(c, roles.get(c, "JUNGLE")))
     return out
 
 

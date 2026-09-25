@@ -16,6 +16,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 KEY_PATH = os.path.join(DATA_DIR, ".key")
 ROUTING = {"LAS": "americas", "LAN": "americas", "NA": "americas",
            "EUW": "europe", "EUNE": "europe", "KR": "asia"}
+PLATFORM = {"LAS": "la2", "LAN": "la1", "NA": "na1", "EUW": "euw1", "KR": "kr"}
 MAX_PER_2MIN = 100
 MAX_PER_SEC = 20
 
