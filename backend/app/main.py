@@ -200,8 +200,9 @@ def draft(d: Draft):
         # aproximacion conservadora: suma de varianzas de rol y tags
         for t in tags:
             var += cov.get(f"tag_gold:{t}", {}).get(f"tag_gold:{t}", 0.0)
-        se = _m.sqrt(max(var, 0.0)) * 1000 * 25
-        pp = slope * 1000 * 25
+        # betas ya estan en unidades de k-oro -> pp por 1000g = beta * 25
+        se = _m.sqrt(max(var, 0.0)) * 25
+        pp = slope * 25
         return {"champ": champ, "role": role, "tags": tags,
                 "pp_por_1000g": round(pp, 1), "se": round(se, 1),
                 "identificado": bool(abs(pp) > 1.96 * se)}
