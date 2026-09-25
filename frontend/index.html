@@ -46,16 +46,15 @@
         credibilidad 95%). La confianza del modelo crece con el minuto.</p>
       </div>
       <div class="card">
-        <div class="card-head"><h3>¿Quién movió la aguja?
-          <span class="chip grey">correlacional</span></h3>
-          <select id="lmSelector"></select>
-        </div>
-        <div id="chartWaterfall" class="chart-md"></div>
-        <p class="chart-note">Barras sólidas = efecto identificado · barras
-        punteadas = el IC cubre cero (trátalas como indicativas).</p>
+        <div class="card-head"><h3>Impacto por carril en el tiempo
+          <span class="chip grey">correlacional</span></h3></div>
+        <div id="chartLanes" class="chart-md"></div>
+        <p class="chart-note">Punto sólido = efecto identificado · punto hueco =
+        el IC cubre cero (indicativo). Positivo empuja al lado azul, negativo al rojo.</p>
       </div>
       <div class="card">
-        <div class="card-head"><h3>Jugadores por landmark</h3></div>
+        <div class="card-head"><h3>Jugadores por landmark</h3>
+          <select id="lmSelector"></select></div>
         <div id="tablaJugadores" class="table-wrap"></div>
       </div>
     </div>

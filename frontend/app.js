@@ -131,8 +131,8 @@ async function openMatch(matchId, region) {
     `<option value="${c.landmark}">min ${c.landmark}</option>`).join("");
   sel.value = currentDetail.curve[Math.max(1, currentDetail.curve.length - 3)]?.landmark ||
               currentDetail.curve[0].landmark;
-  sel.onchange = renderWaterfall;
-  renderWaterfall();
+  sel.onchange = () => renderTable(currentDetail.players);
+  renderLanes();
   renderTable(currentDetail.players);
 }
 
@@ -175,42 +175,56 @@ function renderCurve() {
   });
 }
 
-function renderWaterfall() {
-  const lm = $("#lmSelector").value;
-  const c0 = currentDetail.curve.find((x) => String(x.landmark) === String(lm));
-  const c = echarts.init($("#chartWaterfall"));
-  const rows = c0.contribs
-    .map((x) => ({ ...x, abs: Math.abs(x.pp) }))
-    .sort((a, b) => b.abs - a.abs);
+const ROLE_COLORS = { TOP: "#d29922", JUNGLE: "#f778ba", MIDDLE: "#a371f7",
+                      BOTTOM: "#58a6ff", UTILITY: "#3fb950" };
+
+function renderLanes() {
+  const cv = currentDetail.curve;
+  const c = echarts.init($("#chartLanes"));
+  const roles = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"];
+  const series = roles.map((r, ri) => ({
+    name: r, type: "line", smooth: true,
+    data: cv.map((x) => {
+      const k = x.contribs.find((q) => q.rol === r);
+      if (!k) return null;
+      return {
+        value: k.pp,
+        itemStyle: k.identificado
+          ? { color: ROLE_COLORS[r] }
+          : { color: "#161b22", borderColor: ROLE_COLORS[r], borderWidth: 2 },
+        symbolSize: k.identificado ? 8 : 7,
+      };
+    }),
+    lineStyle: { width: 2, color: ROLE_COLORS[r], opacity: 0.85 },
+    ...(ri === 0 ? { markLine: { silent: true, symbol: "none",
+        data: [{ yAxis: 0 }],
+        lineStyle: { color: "#30363d", type: "dashed" } } } : {}),
+  }));
   c.setOption({
     backgroundColor: "transparent",
-    grid: { left: 90, right: 40, top: 10, bottom: 30 },
-    xAxis: { axisLabel: { color: "#8b949e", formatter: (v) => v + " pp" },
+    grid: { left: 60, right: 20, top: 34, bottom: 40 },
+    legend: { textStyle: { color: "#8b949e", fontSize: 11 }, top: 0,
+              itemWidth: 14, itemHeight: 8 },
+    xAxis: { type: "category", data: cv.map((x) => x.landmark), name: "min",
+             axisLabel: { color: "#8b949e" },
+             axisLine: { lineStyle: { color: "#30363d" } } },
+    yAxis: { axisLabel: { color: "#8b949e", formatter: (v) => v + " pp" },
              splitLine: { lineStyle: { color: "#21262d" } } },
-    yAxis: { type: "category", data: rows.map((x) => x.rol),
-             axisLabel: { color: "#e6edf3" } },
-    series: [{
-      type: "bar",
-      data: rows.map((x) => ({
-        value: x.pp,
-        itemStyle: {
-          color: x.pp >= 0 ? "#3fb950" : "#f85149",
-          opacity: x.identificado ? 0.95 : 0.35,
-          borderColor: x.identificado ? "none" : (x.pp >= 0 ? "#3fb950" : "#f85149"),
-          borderWidth: x.identificado ? 0 : 1.5,
-        },
-      })),
-      label: { show: true, position: "right",
-               formatter: (p) => SIGN(p.value) + fmt(p.value) + " pp",
-               color: "#e6edf3" },
-      barWidth: 18,
-    }],
+    series,
     tooltip: {
-      formatter: (p) => {
-        const x = rows[p.dataIndex];
-        return `<b>${x.rol}</b>: ${SIGN(x.pp)}${fmt(x.pp)} ± ${fmt(x.se_pp)} pp<br>` +
-          `dif. de oro: ${SIGN(x.val_k)}${fmt(x.val_k)}k<br>` +
-          (x.identificado ? "● efecto identificado" : "◐ IC cubre 0 — indicativo");
+      trigger: "axis",
+      formatter: (ps) => {
+        const i = ps[0].dataIndex;
+        const x = cv[i];
+        const rows = x.contribs.slice()
+          .sort((a, b) => Math.abs(b.pp) - Math.abs(a.pp))
+          .map((k) =>
+            `<span style="color:${ROLE_COLORS[k.rol]}">■</span> ${k.rol}: ` +
+            `${SIGN(k.pp)}${fmt(k.pp)} ± ${fmt(k.se_pp)} pp ` +
+            `<span style="color:#8b949e">(Δoro ${SIGN(k.val_k)}${fmt(k.val_k)}k` +
+            `${k.identificado ? "" : ", ◐"})</span>`)
+          .join("<br>");
+        return `<b>min ${x.landmark}</b> — P(azul) ${pct(x.p_blue)}<br>` + rows;
       },
     },
   });
