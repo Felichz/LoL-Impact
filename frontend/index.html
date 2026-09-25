@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoLImpact</title>
+<link rel="stylesheet" href="/static/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+<header>
+  <h1>LoL<span>Impact</span></h1>
+  <nav>
+    <button data-view="historial" class="active">Historial</button>
+    <button data-view="draft">Draft</button>
+  </nav>
+  <div class="profile-box">
+    <input id="riotId" placeholder="LP Felix#LAS" value="LP Felix#LAS">
+    <select id="region">
+      <option selected>LAS</option><option>LAN</option><option>NA</option>
+      <option>EUW</option><option>EUNE</option><option>KR</option>
+    </select>
+    <button id="btnLoad">Cargar</button>
+  </div>
+  <div id="health" class="health"></div>
+</header>
+
+<div id="bannerDegradado" class="banner hidden"></div>
+
+<main>
+  <!-- HISTORIAL -->
+  <section id="view-historial" class="view">
+    <div id="patron" class="card patron hidden"></div>
+    <div id="historial" class="card">
+      <p class="placeholder">Carga tu perfil para ver el historial con la curva
+      de win probability de cada partida.</p>
+    </div>
+    <div id="detalle" class="hidden">
+      <div class="card hero-card">
+        <div class="card-head">
+          <h2 id="detTitle">Partida</h2>
+          <div id="detMeta"></div>
+        </div>
+        <div id="chartCurve" class="chart-lg"></div>
+        <p class="chart-note">Banda gris = incertidumbre del modelo (IC de
+        credibilidad 95%). La confianza del modelo crece con el minuto.</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>¿Quién movió la aguja?
+          <span class="chip grey">correlacional</span></h3>
+          <select id="lmSelector"></select>
+        </div>
+        <div id="chartWaterfall" class="chart-md"></div>
+        <p class="chart-note">Barras sólidas = efecto identificado · barras
+        punteadas = el IC cubre cero (trátalas como indicativas).</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Jugadores por landmark</h3></div>
+        <div id="tablaJugadores" class="table-wrap"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DRAFT -->
+  <section id="view-draft" class="view hidden">
+    <div class="card">
+      <div class="card-head">
+        <h3>Draft: ¿a quién negarle oro? <span class="chip grey">por clase</span></h3>
+        <button id="btnDraft">Evaluar</button>
+      </div>
+      <p class="chart-note">El modelo sabe convertir oro en winrate por
+      <b>clase</b> (rol + tags). No puede distinguir a un campeón concreto de
+      su clase — cualquier app que te lo diga con este tamaño de datos te
+      está mintiendo.</p>
+      <div class="draft-grid">
+        <div><h4>Tu equipo (azul)</h4><div id="bluePicks" class="picks"></div></div>
+        <div><h4>Enemigos (rojo)</h4><div id="redPicks" class="picks"></div></div>
+      </div>
+      <div id="draftOut"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  LoLImpact no está afiliado ni respaldado por Riot Games. League of Legends
+  es propiedad de Riot Games, Inc. Datos y modelos: proyecto personal
+  (Esmeralda+ LAS, ~30k partidas).
+</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>
