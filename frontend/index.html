@@ -1,127 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LoLImpact</title>
-<link rel="stylesheet" href="/static/styles.css">
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-</head>
-<body>
-<header>
-  <div class="brand">
-    <h1>LoL<span>Impact</span></h1>
-    <p class="brand-sub">qué movió tus partidas — con la duda a la vista</p>
-  </div>
-  <nav>
-    <button data-view="historial" class="active">Mis partidas</button>
-    <button data-view="live">En vivo</button>
-    <button data-view="draft">Draft</button>
-  </nav>
-  <div class="profile-box">
-    <input id="riotId" placeholder="LP Felix#LAS" value="LP Felix#LAS">
-    <select id="region">
-      <option selected>LAS</option><option>LAN</option><option>NA</option>
-      <option>EUW</option><option>EUNE</option><option>KR</option>
-    </select>
-    <button id="btnLoad">Cargar perfil</button>
-  </div>
-  <div id="health" class="health"></div>
-</header>
-
-<div id="bannerDegradado" class="banner hidden"></div>
-
-<main>
-  <!-- ================= HISTORIAL ================= -->
-  <section id="view-historial" class="view">
-    <div id="patron" class="card patron hidden"></div>
-
-    <div id="historial" class="card">
-      <p class="placeholder">Carga tu perfil para ver tus partidas.</p>
-    </div>
-
-    <div id="detalle" class="hidden">
-
-      <div class="card hero-card">
-        <div class="card-head">
-          <h2 id="detTitle">Partida</h2>
-          <div id="detMeta"></div>
-        </div>
-        <p class="card-sub">Probabilidad de que gane <b>tu equipo</b> en cada minuto,
-        calculada con el oro y CS de los 10 jugadores. La franja gris es la duda
-        del modelo: cuanto más ancha, menos seguro está.</p>
-        <div id="chartCurve" class="chart-lg"></div>
-        <p class="chart-note"><span class="dot"></span> 50% = partida al azar ·
-        pasa el mouse por los puntos para ver el detalle por minuto.</p>
-      </div>
-
-      <div class="card">
-        <div class="card-head"><h3>¿Qué línea movió la aguja?</h3></div>
-        <p class="card-sub">Cuánto sumó o restó cada línea a la probabilidad de
-        tu equipo, minuto a minuto. <b>Arriba del 0 = a tu favor.</b></p>
-        <div id="chartLanes" class="chart-md"></div>
-        <p class="chart-note"><b>Punto lleno</b>
-          <span data-tip="El modelo distingue ese efecto del ruido con 95% de confianza.">●</span>
-          efecto confirmado · <b>punto hueco</b>
-          <span data-tip="El intervalo de confianza incluye el 0: el número es indicativo, no está confirmado.">○</span>
-          el modelo no está seguro (míralo con recelo).</p>
-      </div>
-
-      <div class="card">
-        <div class="card-head">
-          <h3>Detalle por jugador</h3>
-          <label class="inline-label">minuto:
-            <select id="lmSelector"></select>
-          </label>
-        </div>
-        <div id="tablaJugadores" class="table-wrap"></div>
-        <p class="chart-note">Tu equipo primero, marcado con
-          <span class="chip you">TÚ</span>. Los datos son del minuto seleccionado,
-          no del final de la partida.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= EN VIVO ================= -->
-  <section id="view-live" class="view hidden">
-    <div class="card">
-      <div class="card-head">
-        <h3>Partida en curso <span class="chip green"
-          data-tip="Detecta tu partida activa vía la API de Riot y evalúa los 10 campeones. Solo funciona mientras juegas (o consultas otra cuenta).">●</span></h3>
-        <button id="btnLive">Detectar partida</button>
-      </div>
-      <p class="card-sub">Qué rentan las kills tempranas de cada línea.
-        <b>1 kill ≈ intercambio de 600g</b> en la línea (+300 el asesino, −300 la
-        víctima; sin contar placas ni experiencia).</p>
-      <div id="liveOut"><p class="placeholder">Pulsa "Detectar partida" mientras
-        estés en cola o jugando.</p></div>
-    </div>
-  </section>
-
-  <!-- ================= DRAFT ================= -->
-  <section id="view-draft" class="view hidden">
-    <div class="card">
-      <div class="card-head">
-        <h3>¿A quién NO dejarle oro? <span class="chip grey"
-          data-tip="El modelo mide por CLASE de campeón (posición + tipo). Con estos datos no puede distinguir a un campeón concreto de su clase: cualquier app que lo afirme con este volumen de datos está exagerando.">por clase</span></h3>
-        <button id="btnDraft">Evaluar draft</button>
-      </div>
-      <p class="card-sub">Elige los 10 campeones y verás cuánto "rinde" el oro de
-        cada uno: <span class="pp-tip" data-tip="Puntos porcentuales de probabilidad de victoria que gana su equipo por cada 1000 de oro de ventaja que tenga un jugador de esa clase. Ej.: +15pp = con 1000g de ventaja, su equipo pasa de 50% a ~65%.">pp por cada 1000g
-        <b>(?)</b></span> de ventaja.</p>
-      <div class="draft-grid">
-        <div><h4>Tu equipo</h4><div id="bluePicks" class="picks"></div></div>
-        <div><h4>Equipo enemigo</h4><div id="redPicks" class="picks"></div></div>
-      </div>
-      <div id="draftOut"></div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  LoLImpact no está afiliado ni respaldado por Riot Games. League of Legends es
-  propiedad de Riot Games, Inc. · Modelo entrenado con ~30k partidas Esmeralda+ LAS.
-</footer>
-<script src="/static/app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Qué movió tus partidas de LoL, con la duda del modelo a la vista." />
+    <title>LoLImpact</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      try {
+        var t = localStorage.getItem("lolimpact.theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <!--
+      THESIS: A game is a tensegrity column. Each evaluated minute is a node pushed off the red 50% axis; lanes are cords that pull on it. Refuses the category's dark stat-card dashboard.
+      OWN-WORLD: Concrete-pale ground, carbon-black rods with ring nodes, tension-red cords and axis, slack-ash for anything unconfirmed (it literally sags). Martian Mono for labels, figures and leader-line annotations; Geist for prose. Chamfered buttons, hairline rules with red node dots.
+      STORY: The player sees how their team's chance rose or fell, which lane pulled hardest, and how sure the model is — then checks live games and drafts in the same grammar.
+      FIRST VIEWPORT: Left rail with profile pattern and match list; main area opens on the latest game: readout at left, the vertical column chart (time rising) at right with pinned annotations. Load control in header.
+      FORM: Tensegrity column (challenger, user-picked over roll #7); seed fab76e92.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+    -->
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

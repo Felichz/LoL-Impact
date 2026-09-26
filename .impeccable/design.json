@@ -1,0 +1,515 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-26T21:51:23+00:00",
+  "title": "Design System: LoLImpact",
+  "extensions": {
+    "colorMeta": {
+      "tension-red": {
+        "role": "primary",
+        "displayName": "Tension Red",
+        "canonical": "oklch(56.8% 0.208 27.1)",
+        "cssVar": "--red",
+        "tonalRamp": [
+          "oklch(15.0% 0.125 27.1)",
+          "oklch(26.4% 0.208 27.1)",
+          "oklch(37.9% 0.208 27.1)",
+          "oklch(49.3% 0.208 27.1)",
+          "oklch(60.7% 0.208 27.1)",
+          "oklch(72.1% 0.208 27.1)",
+          "oklch(83.6% 0.208 27.1)",
+          "oklch(95.0% 0.125 27.1)"
+        ],
+        "dark": "#e5484d"
+      },
+      "tension-red-ink": {
+        "role": "primary",
+        "displayName": "Tension Red Ink",
+        "canonical": "oklch(49.4% 0.183 27.2)",
+        "cssVar": "--red-ink",
+        "tonalRamp": [
+          "oklch(15.0% 0.110 27.2)",
+          "oklch(26.4% 0.183 27.2)",
+          "oklch(37.9% 0.183 27.2)",
+          "oklch(49.3% 0.183 27.2)",
+          "oklch(60.7% 0.183 27.2)",
+          "oklch(72.1% 0.183 27.2)",
+          "oklch(83.6% 0.183 27.2)",
+          "oklch(95.0% 0.110 27.2)"
+        ],
+        "dark": "#f2777a"
+      },
+      "tension-red-wash": {
+        "role": "primary",
+        "displayName": "Tension Wash",
+        "canonical": "rgba(214, 40, 40, 0.07)",
+        "cssVar": "--red-wash",
+        "tonalRamp": [
+          "oklch(15.0% 0.125 27.1)",
+          "oklch(26.4% 0.208 27.1)",
+          "oklch(37.9% 0.208 27.1)",
+          "oklch(49.3% 0.208 27.1)",
+          "oklch(60.7% 0.208 27.1)",
+          "oklch(72.1% 0.208 27.1)",
+          "oklch(83.6% 0.208 27.1)",
+          "oklch(95.0% 0.125 27.1)"
+        ],
+        "dark": "rgba(229, 72, 77, 0.1)"
+      },
+      "slack-ash": {
+        "role": "secondary",
+        "displayName": "Slack Ash",
+        "canonical": "oklch(68.6% 0.000 89.9)",
+        "cssVar": "--ash",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 89.9)",
+          "oklch(26.4% 0.000 89.9)",
+          "oklch(37.9% 0.000 89.9)",
+          "oklch(49.3% 0.000 89.9)",
+          "oklch(60.7% 0.000 89.9)",
+          "oklch(72.1% 0.000 89.9)",
+          "oklch(83.6% 0.000 89.9)",
+          "oklch(95.0% 0.000 89.9)"
+        ],
+        "dark": "#6e6e70"
+      },
+      "slack-ash-soft": {
+        "role": "secondary",
+        "displayName": "Soft Ash",
+        "canonical": "oklch(81.4% 0.007 88.7)",
+        "cssVar": "--ash-soft",
+        "tonalRamp": [
+          "oklch(15.0% 0.004 88.7)",
+          "oklch(26.4% 0.007 88.7)",
+          "oklch(37.9% 0.007 88.7)",
+          "oklch(49.3% 0.007 88.7)",
+          "oklch(60.7% 0.007 88.7)",
+          "oklch(72.1% 0.007 88.7)",
+          "oklch(83.6% 0.007 88.7)",
+          "oklch(95.0% 0.004 88.7)"
+        ],
+        "dark": "#3a3a3e"
+      },
+      "carbon-ink": {
+        "role": "neutral",
+        "displayName": "Carbon Ink",
+        "canonical": "oklch(16.0% 0.004 285.9)",
+        "cssVar": "--ink",
+        "tonalRamp": [
+          "oklch(15.0% 0.003 285.9)",
+          "oklch(26.4% 0.004 285.9)",
+          "oklch(37.9% 0.004 285.9)",
+          "oklch(49.3% 0.004 285.9)",
+          "oklch(60.7% 0.004 285.9)",
+          "oklch(72.1% 0.004 285.9)",
+          "oklch(83.6% 0.004 285.9)",
+          "oklch(95.0% 0.003 285.9)"
+        ],
+        "dark": "#eceae5"
+      },
+      "graphite-ink": {
+        "role": "neutral",
+        "displayName": "Graphite Ink",
+        "canonical": "oklch(42.4% 0.005 91.5)",
+        "cssVar": "--ink-2",
+        "tonalRamp": [
+          "oklch(15.0% 0.003 91.5)",
+          "oklch(26.4% 0.005 91.5)",
+          "oklch(37.9% 0.005 91.5)",
+          "oklch(49.3% 0.005 91.5)",
+          "oklch(60.7% 0.005 91.5)",
+          "oklch(72.1% 0.005 91.5)",
+          "oklch(83.6% 0.005 91.5)",
+          "oklch(95.0% 0.003 91.5)"
+        ],
+        "dark": "#b0ada7"
+      },
+      "weathered-ink": {
+        "role": "neutral",
+        "displayName": "Weathered Ink",
+        "canonical": "oklch(52.4% 0.006 95.2)",
+        "cssVar": "--ink-3",
+        "tonalRamp": [
+          "oklch(15.0% 0.004 95.2)",
+          "oklch(26.4% 0.006 95.2)",
+          "oklch(37.9% 0.006 95.2)",
+          "oklch(49.3% 0.006 95.2)",
+          "oklch(60.7% 0.006 95.2)",
+          "oklch(72.1% 0.006 95.2)",
+          "oklch(83.6% 0.006 95.2)",
+          "oklch(95.0% 0.004 95.2)"
+        ],
+        "dark": "#8f8c86"
+      },
+      "concrete-ground": {
+        "role": "neutral",
+        "displayName": "Concrete Ground",
+        "canonical": "oklch(92.2% 0.006 84.6)",
+        "cssVar": "--ground",
+        "tonalRamp": [
+          "oklch(15.0% 0.003 84.6)",
+          "oklch(26.4% 0.006 84.6)",
+          "oklch(37.9% 0.006 84.6)",
+          "oklch(49.3% 0.006 84.6)",
+          "oklch(60.7% 0.006 84.6)",
+          "oklch(72.1% 0.006 84.6)",
+          "oklch(83.6% 0.006 84.6)",
+          "oklch(95.0% 0.003 84.6)"
+        ],
+        "dark": "#111113"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(95.8% 0.005 95.1)",
+        "cssVar": "--paper",
+        "tonalRamp": [
+          "oklch(15.0% 0.003 95.1)",
+          "oklch(26.4% 0.005 95.1)",
+          "oklch(37.9% 0.005 95.1)",
+          "oklch(49.3% 0.005 95.1)",
+          "oklch(60.7% 0.005 95.1)",
+          "oklch(72.1% 0.005 95.1)",
+          "oklch(83.6% 0.005 95.1)",
+          "oklch(95.0% 0.003 95.1)"
+        ],
+        "dark": "#18181b"
+      },
+      "paper-pressed": {
+        "role": "neutral",
+        "displayName": "Paper Pressed",
+        "canonical": "oklch(93.4% 0.007 88.6)",
+        "cssVar": "--paper-2",
+        "tonalRamp": [
+          "oklch(15.0% 0.004 88.6)",
+          "oklch(26.4% 0.007 88.6)",
+          "oklch(37.9% 0.007 88.6)",
+          "oklch(49.3% 0.007 88.6)",
+          "oklch(60.7% 0.007 88.6)",
+          "oklch(72.1% 0.007 88.6)",
+          "oklch(83.6% 0.007 88.6)",
+          "oklch(95.0% 0.004 88.6)"
+        ],
+        "dark": "#202024"
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(84.6% 0.009 84.6)",
+        "cssVar": "--rule",
+        "tonalRamp": [
+          "oklch(15.0% 0.005 84.6)",
+          "oklch(26.4% 0.009 84.6)",
+          "oklch(37.9% 0.009 84.6)",
+          "oklch(49.3% 0.009 84.6)",
+          "oklch(60.7% 0.009 84.6)",
+          "oklch(72.1% 0.009 84.6)",
+          "oklch(83.6% 0.009 84.6)",
+          "oklch(95.0% 0.005 84.6)"
+        ],
+        "dark": "#2c2c30"
+      },
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "Hairline Strong",
+        "canonical": "oklch(28.6% 0.004 286.2)",
+        "cssVar": "--rule-strong",
+        "tonalRamp": [
+          "oklch(15.0% 0.002 286.2)",
+          "oklch(26.4% 0.004 286.2)",
+          "oklch(37.9% 0.004 286.2)",
+          "oklch(49.3% 0.004 286.2)",
+          "oklch(60.7% 0.004 286.2)",
+          "oklch(72.1% 0.004 286.2)",
+          "oklch(83.6% 0.004 286.2)",
+          "oklch(95.0% 0.002 286.2)"
+        ],
+        "dark": "#d6d3cc"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "One per view: view titles and the match hero, uppercase condensed mono (built via font-stretch 81%)."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The readout's selected minute, in red ink."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Hero numbers: readout probability (22px), pinned node values in the column (19px)."
+      },
+      "title": {
+        "displayName": "Section Title",
+        "purpose": "Section headings led by the red cord-and-node mark."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Sentences only, 64ch max, graphite ink."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Legend definitions, readout row labels, tooltip bubbles."
+      },
+      "number": {
+        "displayName": "Number",
+        "purpose": "Every tabular figure in tables, deltas, margins."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Column headers, captions, axis ticks, chart annotations; the system's floor size."
+      },
+      "button": {
+        "displayName": "Button / Nav",
+        "purpose": "Controls and navigation."
+      }
+    },
+    "shadows": [
+      {
+        "name": "tooltip-lift",
+        "value": "0 10px 28px -8px rgba(0, 0, 0, 0.4)",
+        "purpose": "Carbon tooltip bubble floating over content."
+      },
+      {
+        "name": "menu-lift",
+        "value": "0 14px 30px -12px rgba(0, 0, 0, 0.35)",
+        "purpose": "Open champion combobox listbox."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "System easing for all state transitions."
+      },
+      {
+        "name": "state-fast",
+        "value": "150ms",
+        "purpose": "Border and color changes on fields, rows, nav, tooltip trigger."
+      },
+      {
+        "name": "state",
+        "value": "200ms",
+        "purpose": "Button fill and node ring-stroke changes."
+      },
+      {
+        "name": "rod-tension",
+        "value": "350ms",
+        "purpose": "Rod glyph shifts 3px and tilts -8deg on button hover."
+      },
+      {
+        "name": "node-spring",
+        "value": "650ms per node, 95ms stagger, back-out overshoot 1.25",
+        "purpose": "Column nodes spring off the 50% axis in sequence on load."
+      },
+      {
+        "name": "tooltip-in",
+        "value": "160ms fade",
+        "purpose": "Tooltip appearance."
+      },
+      {
+        "name": "tense",
+        "value": "1.2s scaleX 0.2 to 1, alternate, infinite",
+        "purpose": "Refreshing indicator: a red cord tensing."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "all durations 0.01ms; charts render at rest",
+        "purpose": "prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "header-wrap",
+        "value": "1180px"
+      },
+      {
+        "name": "hero-stack",
+        "value": "1100px"
+      },
+      {
+        "name": "master-detail",
+        "value": "960px"
+      },
+      {
+        "name": "table-compact",
+        "value": "720px"
+      },
+      {
+        "name": "compact",
+        "value": "640px"
+      }
+    ],
+    "texture": {
+      "name": "concrete-noise",
+      "value": "fixed SVG feTurbulence fractalNoise (baseFrequency .85, 3 octaves) at 0.5 opacity light / 0.22 dark",
+      "purpose": "Concrete grain behind all content."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Carbon plate with a chamfered corner and the red rod glyph; the one primary action per surface.",
+      "html": "<button class=\"ds-btn\">Ver mis partidas<svg class=\"ds-rod\" viewBox=\"0 0 30 10\" aria-hidden=\"true\"><path d=\"M1 8.5 H11\" stroke=\"currentColor\" stroke-width=\"1\"/><path d=\"M11 8.5 L27 2\" stroke=\"currentColor\" stroke-width=\"1\"/><circle cx=\"11\" cy=\"8.5\" r=\"1.6\" fill=\"currentColor\"/><circle cx=\"27\" cy=\"2\" r=\"1.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1\"/></svg></button>",
+      "css": ".ds-btn { display:inline-flex; align-items:center; gap:14px; height:38px; padding:0 16px; border:0; cursor:pointer; font-family:var(--font-mono, \"Martian Mono Variable\", ui-monospace, monospace); font-stretch:87.5%; font-size:11.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; white-space:nowrap; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); transition: background .2s cubic-bezier(0.16, 1, 0.3, 1), color .2s cubic-bezier(0.16, 1, 0.3, 1); background:var(--ink, #0d0d0f); color:var(--paper, #f2f1ed); } .ds-btn .ds-rod { width:30px; height:10px; color:var(--red, #d62828); transition: transform .35s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn:hover { background:var(--rule-strong, #2a2a2c); } .ds-btn:hover .ds-rod { transform: translateX(3px) rotate(-8deg); } .ds-btn:focus-visible { outline:2px solid var(--red, #d62828); outline-offset:2px; } .ds-btn:active { transform: translateY(1px); } .ds-btn:disabled { opacity:.45; cursor:not-allowed; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "1px ink chamfered outline over the local surface; secondary steps (Min anterior / siguiente, Vaciar draft).",
+      "html": "<button class=\"ds-btn-ghost\">Min siguiente</button>",
+      "css": ".ds-btn-ghost { display:inline-flex; align-items:center; gap:14px; height:38px; padding:0 16px; border:0; cursor:pointer; font-family:var(--font-mono, \"Martian Mono Variable\", ui-monospace, monospace); font-stretch:87.5%; font-size:11.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; white-space:nowrap; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); transition: background .2s cubic-bezier(0.16, 1, 0.3, 1), color .2s cubic-bezier(0.16, 1, 0.3, 1); position:relative; isolation:isolate; background:var(--rule-strong, #2a2a2c); color:var(--ink, #0d0d0f); } .ds-btn-ghost::before { content:''; position:absolute; inset:1px; z-index:-1; background:var(--ground, #e7e5e1); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 9.4px), calc(100% - 9.4px) 100%, 0 100%); transition: background .2s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-ghost:hover::before { background:var(--paper-2, #ebe9e4); } .ds-btn-ghost:focus-visible { outline:2px solid var(--red, #d62828); outline-offset:2px; } .ds-btn-ghost:disabled { background:var(--ash, #9a9a9a); color:var(--ink-3, #62615d); cursor:not-allowed; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Paper input with hairline border; focus tensions to red with a wash ring.",
+      "html": "<input class=\"ds-field\" placeholder=\"Nombre#TAG\" />",
+      "css": ".ds-field { height:38px; padding:0 12px; background:var(--paper, #f2f1ed); color:var(--ink, #0d0d0f); border:1px solid var(--rule, #cfccc6); border-radius:3px; font-family:var(--font-mono, \"Martian Mono Variable\", ui-monospace, monospace); font-stretch:87.5%; font-size:12.5px; transition:border-color .15s; } .ds-field::placeholder { color:var(--ink-3, #62615d); } .ds-field:hover { border-color:var(--ash, #9a9a9a); } .ds-field:focus, .ds-field:focus-visible { outline:none; border-color:var(--red, #d62828); box-shadow:0 0 0 3px var(--red-wash, rgba(214,40,40,.07)); }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Uppercase mono links; the active one hangs a red cord and node onto the header rule.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\" class=\"on\">Partidas</a><a href=\"#\">En vivo</a><a href=\"#\">Draft</a></nav>",
+      "css": ".ds-nav { display:flex; gap:4px; padding-bottom:12px; border-bottom:1px solid var(--rule-strong, #2a2a2c); } .ds-nav a { position:relative; padding:8px 12px; font-family:var(--font-mono, \"Martian Mono Variable\", ui-monospace, monospace); font-stretch:87.5%; font-size:11.5px; font-weight:450; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2, #4f4e4b); text-decoration:none; transition:color .15s; } .ds-nav a:hover { color:var(--ink, #0d0d0f); } .ds-nav a:focus-visible { outline:2px solid var(--red, #d62828); outline-offset:2px; } .ds-nav a.on { color:var(--red-ink, #b21e1e); } .ds-nav a.on::after { content:''; position:absolute; left:12px; right:12px; bottom:-13px; height:1px; background:var(--red, #d62828); } .ds-nav a.on::before { content:''; position:absolute; left:50%; bottom:-16px; width:7px; height:7px; margin-left:-3.5px; border-radius:50%; background:var(--red, #d62828); }"
+    },
+    {
+      "name": "Section Title",
+      "kind": "custom",
+      "refersTo": "title",
+      "description": "The heading itself, led by a red cord ending in a node.",
+      "html": "<h2 class=\"ds-sec\">Qué línea tiró de la partida · min 15</h2>",
+      "css": ".ds-sec { display:flex; align-items:center; gap:10px; margin:0; font-family:var(--font-mono, \"Martian Mono Variable\", ui-monospace, monospace); font-stretch:87.5%; font-size:12px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--ink, #0d0d0f); } .ds-sec::before { content:''; width:18px; height:7px; flex:none; background: radial-gradient(circle at calc(100% - 3.5px) 50%, var(--red, #d62828) 3px, transparent 3.5px), linear-gradient(var(--red, #d62828), var(--red, #d62828)) left center / calc(100% - 6px) 1px no-repeat; }"
+    },
+    {
+      "name": "You Chip",
+      "kind": "chip",
+      "refersTo": "chip-you",
+      "description": "Marks the loaded player's row; the only red-filled block.",
+      "html": "<span class=\"ds-you\">TÚ</span>",
+      "css": ".ds-you { display:inline-flex; align-items:center; height:17px; padding:0 6px; font-family:var(--font-mono, \"Martian Mono Variable\", ui-monospace, monospace); font-stretch:87.5%; font-size:10.5px; font-weight:600; letter-spacing:.08em; color:var(--paper, #f2f1ed); background:var(--red, #d62828); border-radius:2px; }"
+    },
+    {
+      "name": "Readout Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "The one boxed summary: red-ink minute over a red rule, verdict dot, mono figures on hairline rows.",
+      "html": "<div class=\"ds-ro\"><div class=\"ds-ro-h\"><span class=\"ds-ro-m\">Min 15</span><span class=\"ds-ro-s\">A favor</span></div><dl><div><dt>Prob. de que gane tu equipo</dt><dd class=\"big\">75%</dd></div><div><dt>Rango probable</dt><dd>68% – 81%</dd></div><div><dt>Cambio desde min 12</dt><dd>+16 pp</dd></div></dl></div>",
+      "css": ".ds-ro { display:grid; gap:12px; padding:18px 18px 16px; background:color-mix(in srgb, var(--paper, #f2f1ed) 88%, transparent); border:1px solid var(--rule, #cfccc6); border-radius:3px; max-width:400px; } .ds-ro-h { display:flex; justify-content:space-between; align-items:baseline; padding-bottom:10px; border-bottom:1px solid var(--red, #d62828); } .ds-ro-m { font-family:var(--font-mono, \"Martian Mono Variable\", ui-monospace, monospace); font-stretch:81%; font-weight:380; font-size:26px; line-height:.95; letter-spacing:-.02em; text-transform:uppercase; color:var(--red-ink, #b21e1e); } .ds-ro-s { display:inline-flex; align-items:center; gap:7px; font-family:var(--font-mono, \"Martian Mono Variable\", ui-monospace, monospace); font-stretch:87.5%; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink, #0d0d0f); } .ds-ro-s::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--red, #d62828); } .ds-ro dl { display:grid; margin:0; } .ds-ro dl > div { display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:7px 0; border-bottom:1px solid var(--rule, #cfccc6); } .ds-ro dt { font-family:var(--font-sans, \"Geist Variable\", ui-sans-serif, system-ui, sans-serif); font-size:12.5px; color:var(--ink-2, #4f4e4b); } .ds-ro dd { margin:0; font-family:var(--font-mono, \"Martian Mono Variable\", ui-monospace, monospace); font-stretch:87.5%; font-variant-numeric:tabular-nums; font-size:14px; color:var(--ink, #0d0d0f); } .ds-ro dd.big { font-size:22px; }"
+    },
+    {
+      "name": "Force Bar",
+      "kind": "custom",
+      "refersTo": "force-bar",
+      "description": "Taut (confirmed: straight red cord, solid node) vs slack (unconfirmed: sagging dashed ash, hollow node) around a dotted red axis.",
+      "html": "<div class=\"ds-fb\"><svg viewBox=\"0 0 240 22\" width=\"240\" height=\"22\"><line x1=\"0\" x2=\"240\" y1=\"11\" y2=\"11\" class=\"base\"/><line x1=\"120\" x2=\"196\" y1=\"11\" y2=\"11\" class=\"taut\"/><circle cx=\"196\" cy=\"11\" r=\"3.6\" class=\"nt\"/><line x1=\"120\" x2=\"120\" y1=\"1\" y2=\"21\" class=\"axis\"/></svg><svg viewBox=\"0 0 240 22\" width=\"240\" height=\"22\"><line x1=\"0\" x2=\"240\" y1=\"11\" y2=\"11\" class=\"base\"/><path d=\"M120,11 Q101,25 82,11\" class=\"slack\"/><circle cx=\"82\" cy=\"11\" r=\"3.4\" class=\"ns\"/><line x1=\"120\" x2=\"120\" y1=\"1\" y2=\"21\" class=\"axis\"/></svg></div>",
+      "css": ".ds-fb { display:grid; gap:10px; } .ds-fb svg { overflow:visible; } .ds-fb .base { stroke:var(--rule, #cfccc6); stroke-width:1; } .ds-fb .axis { stroke:var(--red, #d62828); stroke-width:1; stroke-dasharray:2 2; } .ds-fb .taut { stroke:var(--red, #d62828); stroke-width:2.2; stroke-linecap:round; } .ds-fb .nt { fill:var(--red, #d62828); } .ds-fb .slack { fill:none; stroke:var(--ash, #9a9a9a); stroke-width:1.4; stroke-dasharray:3 2.5; } .ds-fb .ns { fill:var(--paper, #f2f1ed); stroke:var(--ash, #9a9a9a); stroke-width:1.4; }"
+    },
+    {
+      "name": "Column Node",
+      "kind": "custom",
+      "refersTo": "column",
+      "description": "Fragment of the signature column: carbon rods between ring nodes, red cords from the dashed 50% axis, ash interval members; the selected node goes red with a halo.",
+      "html": "<svg class=\"ds-col\" viewBox=\"0 0 220 170\" width=\"220\" height=\"170\"><line x1=\"80\" x2=\"80\" y1=\"4\" y2=\"166\" class=\"axis\"/><line x1=\"54\" x2=\"118\" y1=\"140\" y2=\"140\" class=\"ci\"/><line x1=\"72\" x2=\"100\" y1=\"140\" y2=\"140\" class=\"ci50\"/><line x1=\"80\" x2=\"86\" y1=\"140\" y2=\"140\" class=\"cord\"/><line x1=\"92\" x2=\"178\" y1=\"85\" y2=\"85\" class=\"ci\"/><line x1=\"118\" x2=\"152\" y1=\"85\" y2=\"85\" class=\"ci50\"/><line x1=\"80\" x2=\"134\" y1=\"85\" y2=\"85\" class=\"cord on\"/><line x1=\"90\" y1=\"132\" x2=\"130\" y2=\"92\" class=\"rod\"/><line x1=\"140\" y1=\"78\" x2=\"168\" y2=\"42\" class=\"rod\"/><g><circle cx=\"86\" cy=\"140\" r=\"7.5\" class=\"ring\"/><circle cx=\"86\" cy=\"140\" r=\"2.6\" class=\"core\"/></g><g class=\"sel\"><circle cx=\"134\" cy=\"85\" r=\"13\" class=\"halo\"/><circle cx=\"134\" cy=\"85\" r=\"7.5\" class=\"ring\"/><circle cx=\"134\" cy=\"85\" r=\"2.6\" class=\"core\"/></g><g><circle cx=\"172\" cy=\"36\" r=\"7.5\" class=\"ring\"/><circle cx=\"172\" cy=\"36\" r=\"2.6\" class=\"core\"/></g></svg>",
+      "css": ".ds-col { overflow:visible; } .ds-col .axis { stroke:var(--red, #d62828); stroke-dasharray:5 4; } .ds-col .ci { stroke:var(--ash, #9a9a9a); stroke-width:1; } .ds-col .ci50 { stroke:var(--ash, #9a9a9a); stroke-width:3.5; stroke-linecap:round; opacity:.8; } .ds-col .cord { stroke:var(--red, #d62828); stroke-width:1.1; opacity:.55; } .ds-col .cord.on { opacity:1; stroke-width:1.6; } .ds-col .rod { stroke:var(--ink, #0d0d0f); stroke-width:8; stroke-linecap:round; } .ds-col .ring { fill:var(--paper, #f2f1ed); stroke:var(--ink, #0d0d0f); stroke-width:2.6; transition:stroke .2s; } .ds-col .core { fill:var(--ink, #0d0d0f); } .ds-col g:hover .ring { stroke:var(--red, #d62828); } .ds-col .sel .ring { stroke:var(--red, #d62828); } .ds-col .sel .core { fill:var(--red, #d62828); } .ds-col .halo { fill:none; stroke:var(--red, #d62828); stroke-width:1; }"
+    },
+    {
+      "name": "Tooltip",
+      "kind": "custom",
+      "refersTo": "tooltip",
+      "description": "Carbon bubble in Geist, tied to its trigger by a 1px red cord instead of an arrow.",
+      "html": "<span class=\"ds-tip-wrap\"><span class=\"ds-tip\">Intervalo de credibilidad del 95%: el modelo cree que la probabilidad real está dentro de este rango.</span></span>",
+      "css": ".ds-tip-wrap { display:inline-block; padding-bottom:12px; } .ds-tip { position:relative; display:block; max-width:300px; padding:10px 12px; background:var(--ink, #0d0d0f); color:var(--paper, #f2f1ed); font:400 12.5px/1.5 var(--font-sans, \"Geist Variable\", ui-sans-serif, system-ui, sans-serif); border-radius:3px; box-shadow:0 10px 28px -8px rgba(0,0,0,.4); } .ds-tip::after { content:''; position:absolute; left:32px; top:100%; width:1px; height:9px; background:var(--red, #d62828); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Tensegrity Column",
+    "overview": "A ranked game is drawn as a tensegrity column standing on pale concrete. Each evaluated minute is a ring node pushed off a dashed red axis that marks 50%, the coin toss. Carbon-black rods join the nodes as time rises up the page. Red cords run from the axis to each node, and from the active node out to the lanes that pulled on it. Anything the model cannot confirm goes slack: it turns ash, breaks into dashes and sags. The rest of the interface uses the same parts. Section titles hang from a red cord with a node at its end. The divider between the rail and the canvas is a hairline with a red node where it meets the header. The glyph on the primary action is a small rod and cord. The loader is a column that breathes.\n\nThe mood is engineered, calm and exact. Think of a structural drawing pinned to a site-office wall, not a gaming overlay. The system is dense but spare. It leans on hairline rules, tabular mono figures and a single tension color instead of cards, tiles and fills. Uncertainty is part of the structure. The 50% and 95% interval members sit next to every node, so a chart without its doubt does not look finished.\n\nThe world rejects the category's dark stat-card dashboard: a grid of KPI tiles on near-black, with neon, glow or RGB accents. The brand also rules out corporate-grey sameness. The dark theme is a direct inversion of the same drawing (graphite ground, bone rods, brighter red). It is not a separate \"gamer\" skin.",
+    "keyCharacteristics": [
+      "Pale concrete ground with a faint fractal-noise texture. Carbon ink. One tension red.",
+      "Confirmed vs. unconfirmed is shown as taut vs. slack: straight red with a filled node, or sagging dashed ash with a hollow node.",
+      "Martian Mono, condensed, for every label, figure, annotation and control. Geist for sentences only.",
+      "Hairline rules, marked with red node dots, carry the structure. Panels are rare.",
+      "Actions have a chamfered bottom-right corner. Containers are nearly square (3px). Nodes are circles.",
+      "Motion is physical: nodes spring off the axis in sequence with a slight overshoot."
+    ],
+    "rules": [
+      {
+        "name": "The Tension Rule",
+        "body": "Red means \"force that holds\": the 50% axis, a cord, a confirmed effect, the thing you selected. If an element is red, it must be one of those. Red never decorates and never fills an area larger than a chip.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Reds Rule",
+        "body": "Strokes, dots and fills use `tension-red`. Any text in red uses `tension-red-ink`. Stroke red on concrete is 4.0:1 and is not a text color.",
+        "section": "colors"
+      },
+      {
+        "name": "The Slack Rule",
+        "body": "Anything the model cannot confirm (the interval covers 0, or there is no data) is drawn in ash. It is dashed, it sags (a quadratic curve, not a straight line), and it ends in a hollow paper-filled node. It is never red, however large the number.",
+        "section": "colors"
+      },
+      {
+        "name": "The Shape Before Hue Rule",
+        "body": "No state relies on color alone. Taut vs. slack also differ in line form and node fill, and carry the words \"tenso\"/\"flojo\" or \"confirmado\"/\"indicativo\". Win vs. loss uses a filled vs. hollow \"V\"/\"D\" disc. Your side of the axis is labelled \"gana tu equipo →\". Green is not in the palette.",
+        "section": "colors"
+      },
+      {
+        "name": "The Weathered Ink Rule",
+        "body": "Weathered ink is for mono labels and metadata only. Place it on paper when you can. Its measured contrast on bare concrete (4.3:1) falls short of AA for small text, so do not use it for sentences.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono Measures Rule",
+        "body": "If it is a number, a unit, a minute, a label or a control, set it in Martian Mono with tabular figures. If it is a sentence, set it in Geist. Do not mix within a single element.",
+        "section": "typography"
+      },
+      {
+        "name": "The Narrow Mono Rule",
+        "body": "Martian Mono never renders at its default width. Use 87.5% for labels, figures and controls, and 81% for display and the wordmark.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hairline Frame Rule",
+        "body": "Structure is drawn with hairlines, and every junction that matters gets a red node dot: the section-title cord, the active nav item on the header rule, the rail divider at the header and the current match in the list. Build sections from rules and whitespace, not from boxed cards.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Concrete Rule",
+        "body": "Anything that sits in the page is flat: panels, rows, tables, charts. A shadow is allowed only on a layer that floats over other content (tooltip, open listbox). The sticky header separates with a blur and a rule, not a shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Chamfer Rule",
+        "body": "Only things you press get the chamfered corner. Containers stay at 3px, and nothing in the system uses a pill or a large radius.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "**Do** show every probability or effect with its interval: ash 95% whiskers, a 50% member, or a \"± x pp\" mono margin next to the figure.",
+      "**Do** draw confirmed effects taut (straight red, solid node) and unconfirmed ones slack (dashed ash, sagging, hollow node), and label the state in words.",
+      "**Do** mark structural junctions with a red node dot on a hairline: section titles, the active nav item, the current list row, the rail divider.",
+      "**Do** set every figure in narrowed Martian Mono with tabular numerals, and every sentence in Geist.",
+      "**Do** orient every chart to the loaded player: flip red-side data so the right side and \"up\" always mean \"tu equipo\", and tint only that half with the wash.",
+      "**Do** use `tension-red-ink` for red text and `tension-red` for strokes, dots and the one chip.",
+      "**Do** chamfer the bottom-right corner of pressable controls and keep containers at 3px.",
+      "**Do** animate with the system ease-out (cubic-bezier(0.16, 1, 0.3, 1)): 0.15–0.2s for color, 0.35s for the rod glyph, and a sequenced spring for chart nodes. Collapse all of it under `prefers-reduced-motion`."
+    ],
+    "donts": [
+      "**Don't** build the category's dark stat-card dashboard: no grids of KPI tiles, no card-per-metric layouts, no dark-by-default \"gamer\" skin. The single readout panel is the only boxed summary on a view.",
+      "**Don't** use neon, glow, RGB gradients or aggressive display faces. The dark theme is the same drawing inverted, not a gaming mode.",
+      "**Don't** color an unconfirmed value red because it is large. Only confirmation earns tension red.",
+      "**Don't** encode win/loss or ally/enemy with red vs. green. Green is not in the palette. Pair any color with shape, sign or a word.",
+      "**Don't** set text in `slack-ash`, and don't set sentences in `weathered-ink` on bare concrete.",
+      "**Don't** put shadows on in-page surfaces. Only floating layers (tooltip, listbox) lift.",
+      "**Don't** round buttons into pills or give containers radii above 3px.",
+      "**Don't** fill large areas with red. Red is a line, a dot or a 7% wash."
+    ]
+  }
+}

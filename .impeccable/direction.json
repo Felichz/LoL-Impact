@@ -1,0 +1,51 @@
+{
+  "title": "Elige el mundo visual de LoLImpact",
+  "question": "La tirada asignó 'Programa Olímpico'. Quédatelo, toma una alternativa o vuelve a tirar.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Programa Olímpico",
+      "kicker": "LA TIRADA",
+      "lineage": "Otl Aicher, identidad de Múnich '72",
+      "thesis": "Cada línea es una disciplina con su color y su pictograma; la partida se lee como la señalética de un estadio.",
+      "palette": ["#EEF1F3", "#1C2A3A", "#4E9BD6", "#3E9E5F", "#F08A24", "#7A68B8"],
+      "materials": ["campos de color planos", "retícula ortogonal/45°", "pictogramas geométricos", "grotesca Univers-like"],
+      "viewport": "Arriba: tu última partida como un gran marcador tipográfico (% de victoria a escala de estadio) sobre la curva con su banda de duda; debajo, la lista de partidas como un programa de competición con pictograma de rol.",
+      "risk": "Los pasteles pueden leerse blandos o infantiles si la retícula y la tipografía no son rigurosas."
+    },
+    {
+      "id": "challenger-orienteering",
+      "label": "Mapa de orientación",
+      "lineage": "Mapas ISOM de carrera de orientación",
+      "thesis": "La partida como un recorrido: el terreno es el modelo y tu camino minuto a minuto va en púrpura por encima.",
+      "palette": ["#FFFFFF", "#F4D35E", "#8DB580", "#A0643C", "#3C8DD8", "#B0228C"],
+      "case": "Fusiona a medias: el producto es una serie temporal, no datos espaciales; el mapa sería decoración más que verdad."
+    },
+    {
+      "id": "challenger-tensegrity",
+      "label": "Columna de tensegridad",
+      "lineage": "Escultura cinética de cables y barras",
+      "thesis": "Azul y rojo como fuerzas opuestas: cada línea tira de la probabilidad y se ve quién tensó y quién aflojó.",
+      "palette": ["#E6E4DF", "#1A1A1A", "#C8302B", "#9A9A96"],
+      "case": "Metáfora potente para las contribuciones por línea, pero oscurece la curva y las tablas, que son el núcleo."
+    },
+    {
+      "id": "challenger-depot",
+      "label": "Cortina de destinos",
+      "lineage": "Rollos de destino de tranvía en tela",
+      "thesis": "El modo En vivo como un letrero que avanza a saltos; un fallo es el rollo detenido entre dos leyendas.",
+      "palette": ["#1F4D38", "#E8B923", "#EFE9DA"],
+      "case": "Encaja con el estado degradado/en vivo, pero su estética es demasiado idiosincrática para 'pro y elegante'."
+    }
+  ],
+  "reroll": true,
+  "canon": true,
+  "canonCard": {
+    "label": "El estándar de la categoría",
+    "thesis": "Dashboard oscuro de estadísticas al nivel de op.gg / u.gg / Mobalytics, ejecutado impecablemente.",
+    "palette": ["#0E1015", "#171A21", "#E8EAED", "#5383E8", "#E84057"],
+    "viewport": "Barra de búsqueda arriba, tarjetas de partida en lista con retratos de campeón y KDA, gráficos en paneles oscuros.",
+    "risk": "Se parece a todo lo que ya existe."
+  },
+  "steer": true
+}
