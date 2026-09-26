@@ -7,7 +7,7 @@ media de los 10, kills/deaths acumuladas, rol, tags del campeon.
 import json
 import os
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+from .paths import data_or_asset
 LANDMARKS = [8, 10, 12, 15, 18, 20]
 TAG_KEYS = ["Tank", "Fighter", "Mage", "Assassin", "Marksman", "Support"]
 ROLES = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"]
@@ -18,7 +18,7 @@ _tags_cache = None
 def tags_map():
     global _tags_cache
     if _tags_cache is None:
-        path = os.path.join(DATA_DIR, "LAS", "ddragon_tags.json")
+        path = data_or_asset(os.path.join("LAS", "ddragon_tags.json"), "ddragon_tags.json")
         _tags_cache = json.load(open(path, encoding="utf-8"))
     return _tags_cache
 

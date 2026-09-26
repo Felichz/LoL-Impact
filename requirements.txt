@@ -1,0 +1,3 @@
+# Dependencias para servir la API (Vercel). Entrenamiento: backend/requirements.txt
+fastapi
+numpy

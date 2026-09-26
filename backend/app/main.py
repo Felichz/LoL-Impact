@@ -18,11 +18,9 @@ from pydantic import BaseModel
 
 from . import analysis, build_index
 from .features import ROLES, TAG_KEYS, champ_tags
+from .paths import CACHE_DIR, DATA_DIR
 from .riot import PLATFORM, RiotClient, load_json, resolve_riot_id, save_json
-
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
-CACHE_DIR = os.path.join(DATA_DIR, "cache")
-FRONTEND = os.path.join(os.path.dirname(__file__), "..", "..", "frontend")
+FRONTEND = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
 QUEUE_SOLOQ = 420
 
 app = FastAPI(title="LoLImpact", version="0.1")
@@ -34,8 +32,10 @@ import statistics
 
 
 def match_from_cache(match_id):
-    for sub in ("matches", "matches_emerald", "draft_matches"):
-        p = os.path.join(DATA_DIR, "LAS", sub, f"{match_id}.json")
+    # dataset local primero, luego la caché donde fetch_match guarda lo nuevo
+    for p in [os.path.join(DATA_DIR, "LAS", sub, f"{match_id}.json")
+              for sub in ("matches", "matches_emerald", "draft_matches")] + \
+             [os.path.join(CACHE_DIR, "matches", f"{match_id}.json")]:
         m = load_json(p)
         if m:
             return m
@@ -43,7 +43,12 @@ def match_from_cache(match_id):
 
 
 def timeline_from_cache(match_id):
-    return load_json(os.path.join(DATA_DIR, "LAS", "timelines", f"{match_id}.json"))
+    for p in (os.path.join(DATA_DIR, "LAS", "timelines", f"{match_id}.json"),
+              os.path.join(CACHE_DIR, "timelines", f"{match_id}.json")):
+        tl = load_json(p)
+        if tl:
+            return tl
+    return None
 
 
 def fetch_match(match_id, region="LAS"):
@@ -318,9 +323,19 @@ def live(riot_id: str, region: str = "LAS"):
     return out
 
 
-app.mount("/static", StaticFiles(directory=FRONTEND), name="static")
+# frontend compilado (cd frontend && npm run build); en desarrollo usar `npm run dev`
+if os.path.isdir(os.path.join(FRONTEND, "assets")):
+    app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND, "assets")), name="assets")
+
+
+@app.get("/favicon.svg")
+def favicon():
+    return FileResponse(os.path.join(FRONTEND, "favicon.svg"))
 
 
 @app.get("/")
 def index():
-    return FileResponse(os.path.join(FRONTEND, "index.html"))
+    p = os.path.join(FRONTEND, "index.html")
+    if not os.path.exists(p):
+        raise HTTPException(503, "frontend sin compilar: cd frontend && npm install && npm run build")
+    return FileResponse(p)

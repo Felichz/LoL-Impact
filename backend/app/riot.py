@@ -22,9 +22,10 @@ MAX_PER_SEC = 20
 
 
 def load_keys():
-    env = os.environ.get("RIOT_API_KEY", "").strip()
+    # RIOT_API_KEY admite varias claves separadas por coma (p.ej. en Vercel)
+    env = [k.strip() for k in os.environ.get("RIOT_API_KEY", "").split(",") if k.strip()]
     if env:
-        return [env]
+        return env
     if os.path.exists(KEY_PATH):
         with open(KEY_PATH) as f:
             return [l.strip() for l in f if l.strip().startswith("RGAPI-")]

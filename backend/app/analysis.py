@@ -10,13 +10,14 @@ import math
 import os
 
 import numpy as np
-import pandas as pd
 
 from .features import LANDMARKS, ROLES, TAG_KEYS
+from .paths import ASSETS_DIR, data_or_asset
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
-MODEL_PATH = os.path.join(DATA_DIR, "models", "model_v3_full.json")
-REF_PATH = os.path.join(DATA_DIR, "LAS", "snowball_features_emerald.csv")
+MODEL_PATH = data_or_asset(os.path.join("models", "model_v3_full.json"), "model_v3_full.json")
+# cuantiles de gold_adv por (rol, landmark); se regeneran con `python -m app.build_assets`
+REF_PATH = os.path.join(ASSETS_DIR, "gold_quantiles.json")
+_PROBS = None
 
 _model = None
 _ref = None
@@ -34,20 +35,23 @@ def model():
 
 
 def reference():
-    """Distribucion de gold_adv por (rol, landmark) para percentiles."""
-    global _ref
+    """Distribucion de gold_adv por (rol, landmark), resumida en cuantiles."""
+    global _ref, _PROBS
     if _ref is None:
-        df = pd.read_csv(REF_PATH, usecols=["role", "landmark", "gold_adv"])
-        _ref = {k: np.sort(v.to_numpy())
-                for k, v in df.groupby(["role", "landmark"])["gold_adv"]}
+        raw = json.load(open(REF_PATH, encoding="utf-8"))
+        _ref = {}
+        for k, v in raw.items():
+            role, lm = k.split(":")
+            _ref[(role, int(lm))] = (v["n"], np.asarray(v["q"], dtype=float))
+        _PROBS = np.linspace(0, 100, len(next(iter(_ref.values()))[1]))
     return _ref
 
 
 def percentile(role, landmark, gold_adv):
-    arr = reference().get((role, landmark))
-    if arr is None or len(arr) < 50:
+    ref = reference().get((role, landmark))
+    if ref is None or ref[0] < 50:
         return None
-    return float((arr < gold_adv).mean() * 100)
+    return float(np.interp(gold_adv, ref[1], _PROBS))
 
 
 def _x_vector(lm, players, patch):
