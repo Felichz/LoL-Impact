@@ -1,55 +1,54 @@
 # LoLImpact
 
-Analisis de partidas de LoL con modelos propios (win probability por
-landmark con incertidumbre honesta).
+Analysis of League of Legends games with custom models (win probability per
+landmark with honest uncertainty).
 
-## Estructura
-- `backend/` — FastAPI: cliente Riot multi-clave, modelo v3 servible, analisis
-- `frontend/` — Vite + Svelte 5 + TypeScript, gráficos SVG propios (sin ECharts)
-- `backend/data/` — datasets, modelos y cache (NO se commitea; 36GB)
+## Structure
+- `backend/` — FastAPI: multi-key Riot client, v3 servable model, analysis
+- `frontend/` — Vite + Svelte 5 + TypeScript, custom SVG charts (no ECharts)
+- `backend/data/` — datasets, models and cache (NOT committed; 36GB)
 
-## Deploy en Vercel
-El repo ya está preparado (`vercel.json`): el frontend se compila a estático y
-`api/index.py` expone la app FastAPI como función Python en `/api/*`.
+## Deploy to Vercel
+The repo is already configured (`vercel.json`): the frontend builds to static files and
+`api/index.py` exposes the FastAPI app as a Python function on `/api/*`.
 
-1. Importar el repo en vercel.com (sin cambiar framework ni comandos: los toma de `vercel.json`).
-2. Variable de entorno `RIOT_API_KEY` (una o varias claves separadas por coma).
-   Las claves de desarrollo caducan en 24h: actualizarla y hacer redeploy.
+1. Import the repo on vercel.com (do not change framework or commands: they are read from `vercel.json`).
+2. Environment variable `RIOT_API_KEY` (one or multiple keys separated by comma).
+   Development keys expire every 24h: update them and redeploy.
 
-En Vercel no está el dataset de 36GB: se sirve con `backend/app/assets/`
-(modelo, tags y cuantiles de oro). Tras re-entrenar, regenerarlos con
-`python -m app.build_assets` (desde `backend/`) y commitear. La caché de
-partidas vive en `/tmp` de cada instancia, así que la primera carga de un
-perfil en una instancia fría tarda más.
+Vercel does not host the 36GB dataset: it is served from `backend/app/assets/`
+(model, tags and gold quantiles). After retraining, regenerate them with
+`python -m app.build_assets` (from `backend/`) and commit. The match cache
+lives in `/tmp` on each instance, so the first profile load on a cold instance takes longer.
 
-## Uso local
+## Local usage
 ```
 cd backend
-python -m app.train_final     # re-entrenar modelo (opcional)
-python -m app.build_index     # indice de partidas por jugador
+python -m app.train_final     # retrain model (optional)
+python -m app.build_index     # match index by player
 python -m uvicorn app.main:app --port 8000
 ```
-Frontend (una vez, y tras cada cambio de UI):
+Frontend (once, and after each UI change):
 ```
 cd frontend
 npm install
-npm run build        # genera frontend/dist, que sirve FastAPI
+npm run build        # generates frontend/dist, served by FastAPI
 ```
-Abrir http://localhost:8000 — cargar el perfil (LP Felix#LAS).
+Open http://localhost:8000 — load the profile (LP Felix#LAS).
 
-Desarrollo de la UI con recarga en caliente: `npm run dev` en `frontend/`
-(http://localhost:5173, redirige `/api` al backend en el puerto 8000).
-Un perfil se puede compartir con `?rid=Nombre%23TAG&region=LAS`.
+UI development with hot reload: `npm run dev` in `frontend/`
+(http://localhost:5173, proxies `/api` to backend on port 8000).
+A profile can be shared with `?rid=Name%23TAG&region=LAS`.
 
-Claves de la API en `backend/data/.key` (una por linea, formato RGAPI-...).
-Caducan en 24h: regenerarlas en developer.riotgames.com.
+API keys in `backend/data/.key` (one per line, format RGAPI-...).
+They expire every 24h: regenerate them at developer.riotgames.com.
 
-## Principios de la UI
-- Ningun numero sin su intervalo (IC de credibilidad, no frecuentista)
-- Tres estados: identificado / IC cubre 0 / sin datos
-- Todo lo de campeones es a nivel de CLASE (rol + tags): los campeones
-  individuales no son identificables con este tamano de datos (ver analisis
-  SVD en el historial del proyecto)
-- Atribuciones correlacionales, no causales
+## UI Principles
+- No number without its interval (credibility interval, not frequentist)
+- Three states: identified / interval covers 0 / no data
+- Everything champion-related is at the CLASS level (role + tags): individual
+  champions are not identifiable with this dataset size (see SVD analysis
+  in project history)
+- Attributions are correlational, not causal
 
-No afiliado ni respaldado por Riot Games.
+Not affiliated with or endorsed by Riot Games.
