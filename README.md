@@ -12,7 +12,7 @@ Most LoL stats tools show precise-looking numbers. LoLImpact was built around th
 
 | Layer | What it is |
 |---|---|
-| **Data pipeline** | ~48k soloQ matches collected through a multi-key Riot API client (per-key rate limiting, resumable state, atomic writes). Model dataset: 31k matches **seeded from the ranked ladder and verified player-by-player** (all 10 players Emerald+ via `league-exp`), with per-minute timelines. |
+| **Data pipeline** | ~48k soloQ matches collected through a rate-limit-aware Riot API client (resumable checkpoints, atomic writes). Model dataset: 31k matches **seeded from the ranked ladder and verified player-by-player** (all 10 players Emerald+ via `league-exp`), with per-minute timelines. |
 | **Models** | One logistic model per game-minute landmark (8/10/12/15/18/20): win probability from gold/CS differentials, with slopes by **role and champion class** (partial pooling instead of one-hot-per-champion), temporal splits, and Laplace standard errors for every coefficient. |
 | **Backend** | FastAPI serving the models as pure-JSON inference (no ML runtime in production), profile/match/live/draft endpoints, degraded-cache mode when API keys expire. Deployed to Vercel with the 36GB dataset distilled into three asset files. |
 | **Frontend** | Svelte 5 + TypeScript SPA with **hand-built SVG charts** (no chart library): matches drawn as a *tensegrity column* where each minute's node hangs off the 50% axis, confirmed effects render as taut cables and unconfirmed ones as slack gray members. Light/dark, responsive, accessible tooltips. |
@@ -34,7 +34,7 @@ Four orders of magnitude from reparametrization alone, not from more data. The p
 
 ```mermaid
 flowchart LR
-  A[Riot API multi-key client<br/>per-key rate limits +<br/>encrypted-PUUID namespaces] --> B[(31k matches<br/>ladder-seeded,<br/>10/10 rank-verified,<br/>per-minute timelines)]
+  A[Riot API client<br/>rate-limit aware,<br/>resumable collection] --> B[(31k matches<br/>ladder-seeded,<br/>10/10 rank-verified,<br/>per-minute timelines)]
   B --> C[Trainer: landmark logit models,<br/>partial pooling,<br/>temporal validation]
   C --> D[(model JSON + SEs +<br/>provenance hashes, ~200KB asset)]
   D --> E[FastAPI on Vercel<br/>profile · match · live · draft]
@@ -51,7 +51,7 @@ flowchart LR
 
 ## Engineering notes worth a code review
 
-- `backend/app/riot.py` — thread-safe multi-key client. Riot encrypts PUUIDs **per API key** (same account → different ID under each key): the client pins every PUID to its issuing key and routes by-puuid calls accordingly; match-ID calls rotate freely for throughput.
+- `backend/app/riot.py` — thread-safe Riot client: rate limiting, retry/backoff with proper 429/403/404 semantics, and cache-first fetching so the app degrades gracefully when the API is unreachable.
 - `backend/app/train_final.py` — trains in well-conditioned units (k-gold), picks regularization on a temporal validation split, and exports the full covariance matrix so the API propagates uncertainty bands per request (delta method in `analysis.py`).
 - `backend/app/build_index.py` — scans the local match cache into a 135k-player index, powering a no-API degraded mode.
 - Resumable collection: every stage checkpoints; a kill mid-run loses nothing (atomic `tmp+rename` writes).
@@ -65,7 +65,7 @@ flowchart LR
 
 ## Quickstart
 
-**Deployed (Vercel)** — import the repo on vercel.com (framework and commands come from `vercel.json`), set the `RIOT_API_KEY` env var (comma-separated for multiple keys), done. Production does not need the 36GB dataset: the model ships as assets (`python -m app.build_assets` after retraining, then commit). The match cache lives in `/tmp` per instance, so the first profile load on a cold instance is slower.
+**Deployed (Vercel)** — import the repo on vercel.com (framework and commands come from `vercel.json`), set the `RIOT_API_KEY` env var (production key), done. Production does not need the 36GB dataset: the model ships as assets (`python -m app.build_assets` after retraining, then commit). The match cache lives in `/tmp` per instance, so the first profile load on a cold instance is slower.
 
 **Local**
 ```bash
@@ -78,7 +78,7 @@ python -m uvicorn app.main:app --port 8000   # retrain: python -m app.train_fina
 cd frontend && npm install && npm run build   # dist/ is served by FastAPI
 # or: npm run dev  → hot reload on :5173, proxies /api to :8000
 ```
-Open http://localhost:8000 and load a profile (e.g. `LP Felix#LAS`; shareable via `?rid=Name%23TAG&region=LAS`). Local mode uses the full dataset — API keys go in `backend/data/.key`, one per line (dev keys expire every 24h; regenerate at developer.riotgames.com).
+Open http://localhost:8000 and load a profile (e.g. `LP Felix#LAS`; shareable via `?rid=Name%23TAG&region=LAS`). Local mode uses the full dataset — your Riot API key goes in `backend/data/.key` (production key recommended; dev keys expire every 24h).
 
 ## Credits
 
