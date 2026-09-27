@@ -4,9 +4,6 @@ export type Role = "TOP" | "JUNGLE" | "MIDDLE" | "BOTTOM" | "UTILITY";
 export type Side = "blue" | "red";
 
 export const ROLES: Role[] = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"];
-export const ROLE_ES: Record<string, string> = {
-  TOP: "Top", JUNGLE: "Jungla", MIDDLE: "Mid", BOTTOM: "Bot", UTILITY: "Soporte",
-};
 export const REGIONS = ["LAS", "LAN", "NA", "EUW", "EUNE", "KR"];
 
 export interface Health { ok: boolean; claves_vivas: number; claves_muertas: number; modelo: string }
@@ -67,6 +64,7 @@ async function req<T>(url: string, init?: RequestInit): Promise<T> {
   try {
     r = await fetch(url, init);
   } catch {
+    // texto fijo en español: se traduce en el cliente vía i18n.server()
     throw new ApiError(0, "No hay conexión con el servidor local (¿está corriendo uvicorn en el puerto 8000?).");
   }
   if (!r.ok) {

@@ -3,44 +3,46 @@
   import { ROLES } from "../lib/api";
   import { champions } from "../lib/champions.svelte";
   import { signed } from "../lib/format";
+  import { i18n } from "../lib/i18n.svelte";
   import ChampIcon from "./ChampIcon.svelte";
   import RoleGlyph from "./RoleGlyph.svelte";
   import Tip from "./Tip.svelte";
 
   let { players, minute, mySide, me }: { players: PlayerAt[]; minute: number; mySide: Side; me: string } = $props();
 
+  const t = $derived(i18n.t.playersTable);
   const at = $derived(players.filter((p) => p.landmark === minute));
   const order = (a: PlayerAt, b: PlayerAt) => ROLES.indexOf(a.role) - ROLES.indexOf(b.role);
   const teams = $derived([
-    { title: "Tu equipo", rows: at.filter((p) => p.side === mySide).sort(order) },
-    { title: "Rival", rows: at.filter((p) => p.side !== mySide).sort(order) },
+    { title: t.yourTeam, rows: at.filter((p) => p.side === mySide).sort(order) },
+    { title: t.rival, rows: at.filter((p) => p.side !== mySide).sort(order) },
   ]);
   const isMe = (p: PlayerAt) => !!me && p.name.toLowerCase() === me.toLowerCase();
 </script>
 
 <section class="players" aria-labelledby="pt-h">
-  <h2 id="pt-h" class="sec-title">Los diez jugadores · min {minute}</h2>
+  <h2 id="pt-h" class="sec-title">{t.title(minute)}</h2>
 
   <div class="wrap">
     <table>
       <thead>
         <tr class="label">
-          <th scope="col" class="c-role">Línea</th>
-          <th scope="col">Jugador</th>
-          <th scope="col" class="r c-kd">K / M
-            <Tip text="Asesinatos y muertes ACUMULADOS hasta este minuto, no el total de la partida." /></th>
-          <th scope="col" class="r">Oro
-            <Tip text="Oro del jugador menos el promedio de los 10 en este minuto. +400 = 400 de oro por encima del promedio." /></th>
-          <th scope="col" class="r c-cs">CS
-            <Tip text="Súbditos + monstruos, comparado igual que el oro: contra el promedio de la partida." /></th>
-          <th scope="col" class="pc">Frente a su línea
-            <Tip text="Qué porcentaje de jugadores de esa posición (en ~30k partidas Esmeralda+) tenía MENOS oro en este minuto. 85 = iba más rico que el 85%." /></th>
+          <th scope="col" class="c-role">{t.lane}</th>
+          <th scope="col">{t.player}</th>
+          <th scope="col" class="r c-kd">{t.km}
+            <Tip text={t.kmTip} /></th>
+          <th scope="col" class="r">{t.gold}
+            <Tip text={t.goldTip} /></th>
+          <th scope="col" class="r c-cs">{t.cs}
+            <Tip text={t.csTip} /></th>
+          <th scope="col" class="pc">{t.vsLane}
+            <Tip text={t.vsLaneTip} /></th>
         </tr>
       </thead>
-      {#each teams as t}
+      {#each teams as team}
         <tbody>
-          <tr class="team"><th colspan="6" scope="colgroup">{t.title}</th></tr>
-          {#each t.rows as p}
+          <tr class="team"><th colspan="6" scope="colgroup">{team.title}</th></tr>
+          {#each team.rows as p}
             {@const pc = p.pct == null ? null : Math.round(p.pct)}
             <tr class:me={isMe(p)}>
               <td class="c-role"><RoleGlyph role={p.role} /></td>
@@ -48,7 +50,7 @@
                 <span class="who">
                   <ChampIcon id={p.champ} size={26} />
                   <span class="names">
-                    <span class="pn">{p.name}{#if isMe(p)} <span class="tag-you">TÚ</span>{/if}</span>
+                    <span class="pn">{p.name}{#if isMe(p)} <span class="tag-you">{t.you}</span>{/if}</span>
                     <span class="cn">{champions.name(p.champ)}</span>
                   </span>
                 </span>
@@ -60,7 +62,7 @@
                 {#if pc == null}
                   <span class="dim">—</span>
                 {:else}
-                  <span class="pcw"><span class="pbar" aria-label="Percentil {pc}">
+                  <span class="pcw"><span class="pbar" aria-label={t.percentile(pc)}>
                     <span class="track"></span>
                     <span class="fill" style:width="{pc}%"></span>
                     <span class="knob" style:left="{pc}%"></span>

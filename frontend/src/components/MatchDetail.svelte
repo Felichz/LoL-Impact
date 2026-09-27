@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { api, ApiError, ROLE_ES, type MatchDetail } from "../lib/api";
+  import { api, ApiError, type MatchDetail } from "../lib/api";
   import { champions } from "../lib/champions.svelte";
   import { pct, signed, verdict } from "../lib/format";
   import { app } from "../lib/state.svelte";
+  import { i18n } from "../lib/i18n.svelte";
   import Column from "./Column.svelte";
   import LaneForces from "./LaneForces.svelte";
   import Legend from "./Legend.svelte";
@@ -33,10 +34,15 @@
         if (!alive) return;
         status = "error";
         error = e instanceof ApiError && e.status === 503
-          ? "No hay timeline para esta partida: las claves de la API caducaron y no está en caché. Regenera las claves en developer.riotgames.com y vuelve a intentarlo."
+          ? (i18n.lang === "es"
+              ? "No hay timeline para esta partida: las claves de la API caducaron y no está en caché. Regenera las claves en developer.riotgames.com y vuelve a intentarlo."
+              : "No timeline for this game: the API keys expired and it's not cached. Regenerate the keys at developer.riotgames.com and try again.")
           : e instanceof ApiError && e.status === 404
-          ? "Esta partida no está en caché y la API no la devolvió."
-          : e instanceof Error ? e.message : "Error desconocido.";
+          ? (i18n.lang === "es"
+              ? "Esta partida no está en caché y la API no la devolvió."
+              : "This game isn't cached and the API didn't return it.")
+          : e instanceof ApiError ? i18n.server(e.message)
+          : e instanceof Error ? e.message : i18n.t.common.unknownError;
       },
     );
     return () => { alive = false; };
@@ -81,16 +87,15 @@
       const j = points[i].p - points[i - 1].p;
       if (Math.abs(j) > Math.abs(jump)) { jump = j; k = i; }
     }
-    return `Tu equipo pasó de ${pct(a.p)} en el min ${a.m} a ${pct(b.p)} en el min ${b.m}. ` +
-      `El mayor cambio fue entre el min ${points[k - 1].m} y el ${points[k].m}: ${signed(jump * 100)} pp.`;
+    return i18n.t.matchDetail.summary(pct(a.p), a.m, pct(b.p), b.m, points[k - 1].m, points[k].m, signed(jump * 100));
   });
 </script>
 
 {#if status === "loading"}
-  <div class="state"><Loader label="Leyendo la partida…" /></div>
+  <div class="state"><Loader label={i18n.t.matchDetail.loading} /></div>
 {:else if status === "error"}
   <div class="state err" role="alert">
-    <h2 class="sec-title">No se pudo cargar la partida</h2>
+    <h2 class="sec-title">{i18n.t.matchDetail.loadFailedTitle}</h2>
     <p class="prose">{error}</p>
   </div>
 {:else if data}
@@ -98,40 +103,40 @@
     <div class="hero">
       <div class="intro">
         <h1 class="display title">
-          {#if me}Tu {champions.name(me.champ)}{:else}Partida {data.match_id}{/if}
+          {#if me}{i18n.t.matchDetail.yourChamp(champions.name(me.champ))}{:else}{i18n.t.matchDetail.matchFallback(data.match_id)}{/if}
         </h1>
         <p class="meta label">
-          {#if me}<span class="res" class:w={me.win}>{me.win ? "Victoria" : "Derrota"}</span>
-            · {ROLE_ES[myRole] ?? ""} · <span class="num">{me.kda.join(" / ")}</span> ·{/if}
-          {data.duration_min} min · parche {data.patch}
+          {#if me}<span class="res" class:w={me.win}>{i18n.t.common[me.win ? "win" : "loss"]}</span>
+            · {i18n.t.common.role[myRole] ?? ""} · <span class="num">{me.kda.join(" / ")}</span> ·{/if}
+          {data.duration_min} {i18n.t.matchDetail.minSuffix} · {i18n.t.matchDetail.patch} {data.patch}
         </p>
         {#if !me}
-          <p class="note">No encontramos al perfil cargado en esta partida: se muestra desde el equipo azul.</p>
+          <p class="note">{i18n.t.matchDetail.notFoundNote}</p>
         {/if}
         {#if summary}<p class="summary">{summary}</p>{/if}
 
         {#if cur && v}
           <div class="readout panel" aria-live="polite">
             <div class="ro-head">
-              <span class="ro-min display">Min {cur.m}</span>
-              <span class="ro-state" class:mid={v.word === "Indecisa"}>{v.word}</span>
+              <span class="ro-min display">{i18n.t.matchDetail.minLabel(cur.m)}</span>
+              <span class="ro-state" class:mid={v.key === "unclear"}>{v.word}</span>
             </div>
             <dl>
-              <div><dt>Prob. de que gane tu equipo</dt><dd class="num big">{pct(cur.p)}</dd></div>
-              <div><dt>Rango probable
-                <Tip text="Intervalo de credibilidad del 95%: el modelo cree que la probabilidad real está dentro de este rango." /></dt>
+              <div><dt>{i18n.t.matchDetail.probLabel}</dt><dd class="num big">{pct(cur.p)}</dd></div>
+              <div><dt>{i18n.t.matchDetail.likelyRange}
+                <Tip text={i18n.t.matchDetail.likelyRangeTip} /></dt>
                 <dd class="num">{pct(cur.lo)} – {pct(cur.hi)}</dd></div>
               {#if prev}
-                <div><dt>Cambio desde min {prev.m}</dt><dd class="num">{signed((cur.p - prev.p) * 100)} pp</dd></div>
+                <div><dt>{i18n.t.matchDetail.changeSince(prev.m)}</dt><dd class="num">{signed((cur.p - prev.p) * 100)} pp</dd></div>
               {/if}
-              <div><dt>Acierto del modelo en este minuto
-                <Tip text="Porcentaje de partidas de prueba en las que el modelo acertó el ganador usando solo los datos hasta este minuto." /></dt>
+              <div><dt>{i18n.t.matchDetail.modelAccuracy}
+                <Tip text={i18n.t.matchDetail.modelAccuracyTip} /></dt>
                 <dd class="num">{pct(data.curve[selected].confidence)}</dd></div>
             </dl>
             <p class="ro-why">{v.detail}.</p>
             <div class="ro-nav">
-              <button class="btn ghost" type="button" disabled={selected === 0} onclick={() => selected--}>Min anterior</button>
-              <button class="btn ghost" type="button" disabled={selected === points.length - 1} onclick={() => selected++}>Min siguiente</button>
+              <button class="btn ghost" type="button" disabled={selected === 0} onclick={() => selected--}>{i18n.t.matchDetail.prevMin}</button>
+              <button class="btn ghost" type="button" disabled={selected === points.length - 1} onclick={() => selected++}>{i18n.t.matchDetail.nextMin}</button>
             </div>
           </div>
         {/if}
@@ -141,10 +146,10 @@
         <Column {points} bind:selected duration={data.duration_min} {cords}
           win={me ? me.win : data.blue_win == null ? null : !!data.blue_win} />
         <p class="key">
-          <span><i class="k-ci"></i>duda del modelo (50% / 95%)</span>
-          <span><i class="k-taut"></i>línea que tira, confirmada</span>
-          <span><i class="k-slack"></i>no confirmada</span>
-          <span class="hint">Toca un nodo para ver ese minuto</span>
+          <span><i class="k-ci"></i>{i18n.t.matchDetail.keyCi}</span>
+          <span><i class="k-taut"></i>{i18n.t.matchDetail.keyTaut}</span>
+          <span><i class="k-slack"></i>{i18n.t.matchDetail.keySlack}</span>
+          <span class="hint">{i18n.t.matchDetail.keyHint}</span>
         </p>
       </div>
     </div>

@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { api, ApiError, ROLE_ES, type LiveEntry, type LiveResult } from "../lib/api";
+  import { api, ApiError, type LiveEntry, type LiveResult } from "../lib/api";
   import { app } from "../lib/state.svelte";
   import { champions } from "../lib/champions.svelte";
   import { signed } from "../lib/format";
+  import { i18n } from "../lib/i18n.svelte";
   import ChampIcon from "../components/ChampIcon.svelte";
   import ForceBar from "../components/ForceBar.svelte";
   import Loader from "../components/Loader.svelte";
@@ -11,6 +12,8 @@
   let status = $state<"idle" | "loading" | "ok" | "error">("idle");
   let data = $state<LiveResult | null>(null);
   let error = $state("");
+
+  const t = $derived(i18n.t.liveView);
 
   async function detect() {
     if (!app.riotId.trim()) return;
@@ -21,45 +24,50 @@
     } catch (e) {
       status = "error";
       error = e instanceof ApiError && e.status === 503
-        ? "No hay claves de la API vivas: la detección en vivo necesita consultar a Riot. Regenera las claves (caducan cada 24 h)."
+        ? t.noKeysError
         : e instanceof ApiError && e.status === 404
-        ? `No encontramos la cuenta ${app.riotId} en ${app.region}.`
-        : e instanceof Error ? e.message : "Error desconocido.";
+        ? t.accountNotFound(app.riotId, app.region)
+        : e instanceof ApiError ? i18n.server(e.message)
+        : e instanceof Error ? e.message : i18n.t.common.unknownError;
     }
   }
 
   const sorted = (xs: LiveEntry[]) => [...xs].sort((a, b) => b.kill2 - a.kill2);
   const game = $derived(data && data.en_partida ? data : null);
   const groups = $derived(game ? [
-    { title: "Rival: no les des kills", note: "cuanto más largo el cable, más gana su equipo si se ponen 2-0", rows: sorted(game[game.tu_lado === "blue" ? "red" : "blue"]) },
-    { title: "Tu equipo: dónde una kill vale más", note: "prioriza jugar alrededor de los de arriba", rows: sorted(game[game.tu_lado]) },
+    { title: t.rivalTitle, note: t.rivalNote, rows: sorted(game[game.tu_lado === "blue" ? "red" : "blue"]) },
+    { title: t.teamTitle, note: t.teamNote, rows: sorted(game[game.tu_lado]) },
   ] : []);
   const MAX = 30;
-  const SAMPLE = [
+  const SAMPLE = $derived(i18n.lang === "es" ? [
+    { champ: "Jinx", cls: "Bot · Tirador", v: 15.5, se: 2.4, ok: true },
+    { champ: "Ahri", cls: "Mid · Mago · Asesino", v: 13.3, se: 2.5, ok: true },
+    { champ: "Leona", cls: "Soporte · Tanque · Apoyo", v: 2.1, se: 2.2, ok: false },
+  ] : [
     { champ: "Jinx", cls: "Bot · Marksman", v: 15.5, se: 2.4, ok: true },
     { champ: "Ahri", cls: "Mid · Mage · Assassin", v: 13.3, se: 2.5, ok: true },
-    { champ: "Leona", cls: "Soporte · Tank · Support", v: 2.1, se: 2.2, ok: false },
-  ];
+    { champ: "Leona", cls: "Support · Tank · Support", v: 2.1, se: 2.2, ok: false },
+  ]);
 </script>
 
 <section class="live">
   <header class="head">
-    <h1 class="display">En vivo</h1>
+    <h1 class="display">{t.title}</h1>
     <p class="prose">
-      Detecta tu partida en curso y te dice qué rentan las kills tempranas de cada línea. Asumimos que
-      <b>una kill ≈ 600 de oro de diferencia</b> en la línea (+300 quien mata, −300 quien muere), sin contar placas ni experiencia.
+      {t.intro}
+      <b>{t.introBold}</b> {t.introRest}
     </p>
     <button class="btn" type="button" onclick={detect} disabled={!app.riotId.trim() || status === "loading"}>
-      {status === "loading" ? "Buscando" : "Detectar partida"}<Rod />
+      {status === "loading" ? t.detecting : t.detect}<Rod />
     </button>
   </header>
 
   {#if !app.riotId.trim()}
-    <p class="empty prose">Escribe tu Riot ID arriba para poder buscar tu partida.</p>
+    <p class="empty prose">{t.noRiotId}</p>
   {:else if status === "idle"}
     <div class="empty">
-      <p class="prose">Pulsa <b>Detectar partida</b> en la pantalla de carga o durante los primeros minutos. Buscaremos a <b>{app.riotId}</b> en {app.region}.</p>
-      <figure class="preview" aria-label="Ejemplo ilustrativo del resultado">
+      <p class="prose">{t.idlePrompt(t.detect)} {t.idleSearching(app.riotId, app.region)}</p>
+      <figure class="preview" aria-label={t.previewLabel}>
         <ol>
           {#each SAMPLE as x, i}
             <li>
@@ -67,25 +75,25 @@
               <ChampIcon id={x.champ} size={36} />
               <span class="who"><span class="nm">{champions.name(x.champ)}</span><span class="cls">{x.cls}</span></span>
               <ForceBar value={x.v} se={x.se} max={MAX} confirmed={x.ok} />
-              <span class="vals"><span class="num v" class:slack={!x.ok}>{signed(x.v, 1)} pp</span><span class="sub">± {(1.96 * x.se).toFixed(1)} · si va 2-0</span></span>
+              <span class="vals"><span class="num v" class:slack={!x.ok}>{signed(x.v, 1)} pp</span><span class="sub">± {(1.96 * x.se).toFixed(1)} · {t.ifWin}</span></span>
             </li>
           {/each}
         </ol>
-        <figcaption class="label">Ejemplo ilustrativo · así se verá cuando estés en partida</figcaption>
+        <figcaption class="label">{t.previewCaption}</figcaption>
       </figure>
     </div>
   {:else if status === "loading"}
-    <div class="center"><Loader label="Buscando tu partida…" /></div>
+    <div class="center"><Loader label={t.searching} /></div>
   {:else if status === "error"}
     <p class="err" role="alert">{error}</p>
   {:else if data && !data.en_partida}
     <div class="empty">
-      <h2 class="sec-title">Sin partida en curso</h2>
-      <p class="prose">{data.mensaje} Si acabas de entrar a la pantalla de carga, espera unos segundos y vuelve a intentarlo.</p>
+      <h2 class="sec-title">{t.noGameTitle}</h2>
+      <p class="prose">{i18n.server(data.mensaje)} {t.noGameRest}</p>
     </div>
   {:else if game}
     <p class="meta label">
-      <span class="dot"></span>{game.gameMode} · min {game.minutos} · impacto por clase, medido en el min 8
+      <span class="dot"></span>{t.metaLine(game.gameMode, game.minutos)}
     </p>
     <div class="groups">
       {#each groups as g}
@@ -99,12 +107,12 @@
                 <ChampIcon id={x.champ} size={36} />
                 <span class="who">
                   <span class="nm">{champions.name(x.champ)}</span>
-                  <span class="cls">{ROLE_ES[x.role] ?? x.role} · {x.tags.join(" · ") || "sin clase"}</span>
+                  <span class="cls">{i18n.t.common.role[x.role] ?? x.role} · {x.tags.join(" · ") || i18n.t.common.noClass}</span>
                 </span>
                 <ForceBar value={x.kill2} se={x.se_kill2} max={MAX} confirmed={x.identificado} />
                 <span class="vals">
                   <span class="num v" class:slack={!x.identificado}>{signed(x.kill2, 1)} pp</span>
-                  <span class="sub">± {(1.96 * x.se_kill2).toFixed(1)} · si va 2-0</span>
+                  <span class="sub">± {(1.96 * x.se_kill2).toFixed(1)} · {t.ifWin}</span>
                 </span>
               </li>
             {/each}
@@ -112,7 +120,7 @@
         </section>
       {/each}
     </div>
-    <p class="fine">{game.nota} El rol de cada campeón se infiere de sus tags y puede fallar en picks poco habituales.</p>
+    <p class="fine">{i18n.server(game.nota)} {t.fine}</p>
   {/if}
 </section>
 

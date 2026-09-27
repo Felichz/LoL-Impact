@@ -2,6 +2,7 @@
   import { api, ROLES, type DraftEntry, type DraftResult, type Role } from "../lib/api";
   import { champions } from "../lib/champions.svelte";
   import { signed } from "../lib/format";
+  import { i18n } from "../lib/i18n.svelte";
   import ChampPicker from "../components/ChampPicker.svelte";
   import ForceBar from "../components/ForceBar.svelte";
   import RoleGlyph from "../components/RoleGlyph.svelte";
@@ -15,6 +16,7 @@
   let busy = $state(false);
   let error = $state("");
 
+  const t = $derived(i18n.t.draftView);
   const taken = $derived([...Object.values(blue), ...Object.values(red)].filter(Boolean));
   const clean = (p: Picks) => Object.fromEntries(Object.entries(p).filter(([, v]) => v)) as Partial<Picks>;
 
@@ -27,7 +29,7 @@
     timer = setTimeout(async () => {
       busy = true;
       try { result = await api.draft(b, r); error = ""; }
-      catch (e) { error = e instanceof Error ? e.message : "Error al evaluar."; }
+      catch (e) { error = e instanceof Error ? i18n.server(e.message) : i18n.t.common.unknownError; }
       finally { busy = false; }
     }, 180);
   });
@@ -37,21 +39,21 @@
   const MAX = 30;
   const danger = $derived(result ? [...result.red].sort((a, b) => b.pp_por_1000g - a.pp_por_1000g) : []);
 
-  const sides = [
-    { key: "blue" as const, title: "Tu equipo", hint: "donde tu oro rinde más" },
-    { key: "red" as const, title: "Rival", hint: "a quién no dejarle oro" },
-  ];
+  const sides = $derived([
+    { key: "blue" as const, title: t.yourTeam, hint: t.yourTeamHint },
+    { key: "red" as const, title: t.rival, hint: t.rivalHint },
+  ]);
 </script>
 
 <section class="draft">
   <header class="head">
-    <h1 class="display">Draft</h1>
+    <h1 class="display">{t.title}</h1>
     <p class="prose">
-      Elige los diez campeones y verás cuánto rinde el oro de cada uno:
-      <Tip text="Puntos porcentuales de probabilidad de victoria que gana su equipo por cada 1000 de oro de ventaja de un jugador de esa clase. +15 pp: con 1000 de oro arriba, su equipo pasa de ~50% a ~65%.">
-        <b>pp por cada 1000 de oro</b></Tip> de ventaja. Se mide por <b>clase</b> (posición + tipo), no por campeón concreto.
+      {t.introStart}
+      <Tip text={t.ppTip}>
+        <b>{t.ppTipLabel}</b></Tip> {t.introEnd}
     </p>
-    <button class="reset btn ghost" type="button" onclick={() => { blue = empty(); red = empty(); }} disabled={!taken.length}>Vaciar draft</button>
+    <button class="reset btn ghost" type="button" onclick={() => { blue = empty(); red = empty(); }} disabled={!taken.length}>{t.clearDraft}</button>
   </header>
 
   <div class="teams">
@@ -73,9 +75,9 @@
                 {#if e}
                   <ForceBar value={e.pp_por_1000g} se={e.se} max={MAX} confirmed={e.identificado} />
                   <span class="num v" class:slack={!e.identificado}>{signed(e.pp_por_1000g, 1)}</span>
-                  <span class="cls">{e.tags.join(" · ") || "sin clase"} · {e.identificado ? "confirmado" : "indicativo"}</span>
+                  <span class="cls">{e.tags.join(" · ") || t.noClass} · {e.identificado ? t.confirmed : t.indicative}</span>
                 {:else if picks[role]}
-                  <span class="cls">{busy ? "evaluando…" : ""}</span>
+                  <span class="cls">{busy ? t.evaluating : ""}</span>
                 {/if}
               </div>
             </div>
@@ -89,7 +91,7 @@
 
   {#if danger.length}
     <section class="rank" aria-labelledby="rk-h">
-      <h2 id="rk-h" class="sec-title">Orden de peligro del rival</h2>
+      <h2 id="rk-h" class="sec-title">{t.dangerRank}</h2>
       <ol>
         {#each danger as d, i}
           <li>
@@ -103,7 +105,7 @@
     </section>
   {/if}
 
-  {#if result}<p class="fine">{result.nota}.</p>{/if}
+  {#if result}<p class="fine">{i18n.server(result.nota)}.</p>{/if}
 </section>
 
 <style>

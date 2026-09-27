@@ -2,14 +2,16 @@
   import { onMount } from "svelte";
   import { app } from "./lib/state.svelte";
   import { champions } from "./lib/champions.svelte";
+  import { i18n } from "./lib/i18n.svelte";
   import Header from "./components/Header.svelte";
   import Matches from "./views/Matches.svelte";
   import Live from "./views/Live.svelte";
   import Draft from "./views/Draft.svelte";
 
+  $effect(() => { champions.ensure(i18n.lang); });
+
   onMount(() => {
     app.loadHealth();
-    champions.ensure();
     if (app.riotId.trim()) app.loadProfile();
     const t = setInterval(() => app.loadHealth(), 60_000);
     return () => clearInterval(t);
@@ -29,8 +31,8 @@
 </main>
 
 <footer>
-  <span>LoLImpact no está afiliado ni respaldado por Riot Games. League of Legends es propiedad de Riot Games, Inc.</span>
-  <span>Modelo v3 · ~30k partidas Esmeralda+ LAS · atribuciones correlacionales, no causales</span>
+  <span>{i18n.t.footer.disclaimer}</span>
+  <span>{i18n.t.footer.modelInfo}</span>
 </footer>
 
 <style>

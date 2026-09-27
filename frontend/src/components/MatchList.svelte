@@ -1,28 +1,30 @@
 <script lang="ts">
   import type { MatchSummary } from "../lib/api";
-  import { ROLE_ES } from "../lib/api";
   import { champions } from "../lib/champions.svelte";
   import { signed } from "../lib/format";
+  import { i18n } from "../lib/i18n.svelte";
   import ChampIcon from "./ChampIcon.svelte";
   import MiniColumn from "./MiniColumn.svelte";
   import Tip from "./Tip.svelte";
 
   let { matches, current, onpick }: { matches: MatchSummary[]; current: string | null; onpick: (id: string) => void } = $props();
 
+  const t = $derived(i18n.t);
   const wins = $derived(matches.filter((m) => m.win).length);
+  const resultLetter = (win: boolean) => (i18n.lang === "es" ? (win ? "V" : "D") : (win ? "W" : "L"));
 </script>
 
 <section class="list" aria-labelledby="ml-h">
   <div class="head">
-    <h2 id="ml-h" class="sec-title">Tus partidas</h2>
-    <span class="tally num"><b>{wins}</b>V · <b>{matches.length - wins}</b>D</span>
+    <h2 id="ml-h" class="sec-title">{t.matchList.title}</h2>
+    <span class="tally num"><b>{wins}</b>{resultLetter(true)} · <b>{matches.length - wins}</b>{resultLetter(false)}</span>
   </div>
   <div class="cols label" aria-hidden="true">
-    <span>Campeón</span>
-    <span class="r">Oro 10′
-      <Tip text="Tu oro al minuto 10 menos el promedio de los 10 jugadores. +400 = ibas 400 de oro por encima del promedio de la partida." /></span>
-    <span class="r">Recorrido
-      <Tip text="La probabilidad de que tu equipo gane del min 8 al 20, resumida: por encima de la línea roja iban mejor ustedes." /></span>
+    <span>{t.matchList.champion}</span>
+    <span class="r">{t.matchList.gold10}
+      <Tip text={t.matchList.gold10Tip} /></span>
+    <span class="r">{t.matchList.path}
+      <Tip text={t.matchList.pathTip} /></span>
   </div>
 
   <ol>
@@ -34,8 +36,8 @@
           <span class="who">
             <span class="champ">{champions.name(m.champ)}</span>
             <span class="meta">
-              <span class="res" class:w={m.win} title={m.win ? "Victoria" : "Derrota"}>{m.win ? "V" : "D"}</span>
-              {ROLE_ES[m.role] ?? "—"} · <span class="num">{m.kda.join("/")}</span>
+              <span class="res" class:w={m.win} title={t.matchList.result(m.win)}>{resultLetter(m.win)}</span>
+              {t.common.role[m.role] ?? "—"} · <span class="num">{m.kda.join("/")}</span>
             </span>
           </span>
           <span class="g num" class:dim={(m.my_gold_adv_10 ?? 0) < 0}>
@@ -45,7 +47,7 @@
             {#if m.curve?.length}
               <MiniColumn curve={m.curve} flip={m.side === "red"} width={96} height={28} />
             {:else}
-              <span class="nodata">sin timeline</span>
+              <span class="nodata">{t.matchList.noTimeline}</span>
             {/if}
           </span>
         </button>

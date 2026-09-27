@@ -1,22 +1,20 @@
 <script lang="ts">
   import { app, type View } from "../lib/state.svelte";
   import { REGIONS } from "../lib/api";
+  import { i18n, type Lang } from "../lib/i18n.svelte";
   import Rod from "./Rod.svelte";
 
-  const NAV: { id: View; label: string }[] = [
-    { id: "partidas", label: "Partidas" },
-    { id: "vivo", label: "En vivo" },
-    { id: "draft", label: "Draft" },
-  ];
-  const THEME_LABEL = { system: "Auto", light: "Claro", dark: "Oscuro" } as const;
+  const t = $derived(i18n.t);
+  const NAV: View[] = ["partidas", "vivo", "draft"];
   const nextTheme = { system: "light", light: "dark", dark: "system" } as const;
+  const nextLang: Record<Lang, Lang> = { en: "es", es: "en" };
 
   const keys = $derived(app.health?.claves_vivas ?? 0);
   const status = $derived(
-    app.healthError ? { on: false, text: "Servidor caído" }
-    : !app.health ? { on: false, text: "Conectando…" }
-    : keys > 0 ? { on: true, text: `API Riot · ${keys} ${keys === 1 ? "clave" : "claves"}` }
-    : { on: false, text: "Sin claves · solo caché" },
+    app.healthError ? { on: false, text: t.header.serverDown }
+    : !app.health ? { on: false, text: t.header.connecting }
+    : keys > 0 ? { on: true, text: t.header.apiKeys(keys) }
+    : { on: false, text: t.header.noKeysCached },
   );
 
   function submit(e: SubmitEvent) {
@@ -27,7 +25,7 @@
 </script>
 
 <header class="top">
-  <a class="brand" href="#/partidas" aria-label="LoLImpact, inicio">
+  <a class="brand" href="#/partidas" aria-label={t.header.home}>
     <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
       <path d="M9 26 L20 6 M12 6 L23 26" class="cord" />
       <path d="M8 25 L15 11 M17 21 L24 7" class="rod" />
@@ -36,38 +34,43 @@
     <span class="word">LoL<b>Impact</b></span>
   </a>
 
-  <nav aria-label="Secciones">
+  <nav aria-label={t.header.sections}>
     {#each NAV as n}
-      <a href="#/{n.id}" class:active={app.route.view === n.id} aria-current={app.route.view === n.id ? "page" : undefined}>
-        {n.label}
+      <a href="#/{n}" class:active={app.route.view === n} aria-current={app.route.view === n ? "page" : undefined}>
+        {t.header.nav[n]}
       </a>
     {/each}
   </nav>
 
-  <div class="status" class:off={!status.on} title={app.health ? `${app.health.claves_vivas} vivas, ${app.health.claves_muertas} caducadas · modelo ${app.health.modelo}` : ""}>
+  <div class="status" class:off={!status.on} title={app.health ? t.header.statusTitle(app.health.claves_vivas, app.health.claves_muertas, app.health.modelo) : ""}>
     <span class="dot"></span>{status.text}
   </div>
 
   <form class="profile" onsubmit={submit} class:hidden={app.route.view === "partidas" && !app.profile && app.profileStatus !== "loading"}>
-    <label class="sr-only" for="rid">Riot ID</label>
-    <input id="rid" class="field rid" placeholder="Nombre#TAG" autocomplete="off" spellcheck="false"
+    <label class="sr-only" for="rid">{t.header.riotId}</label>
+    <input id="rid" class="field rid" placeholder={t.header.riotIdPlaceholder} autocomplete="off" spellcheck="false"
       bind:value={app.riotId} />
-    <label class="sr-only" for="reg">Región</label>
+    <label class="sr-only" for="reg">{t.header.region}</label>
     <select id="reg" class="field reg" bind:value={app.region}>
       {#each REGIONS as r}<option>{r}</option>{/each}
     </select>
     <button class="btn" type="submit" disabled={!app.riotId.trim() || app.profileStatus === "loading"}>
-      {app.profileStatus === "loading" ? "Cargando" : "Cargar"}<Rod />
+      {app.profileStatus === "loading" ? t.header.loading : t.header.load}<Rod />
     </button>
   </form>
 
+  <button class="lang" type="button" onclick={() => i18n.set(nextLang[i18n.lang])}
+    aria-label={t.header.langLabel(t.header.lang[i18n.lang])}>
+    <span>{t.header.lang[i18n.lang]}</span>
+  </button>
+
   <button class="theme" type="button" onclick={() => app.setTheme(nextTheme[app.theme])}
-    aria-label="Cambiar tema (ahora: {THEME_LABEL[app.theme]})">
+    aria-label={t.header.themeLabel(t.header.theme[app.theme])}>
     <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
       <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2" />
       <path d="M8 2 A6 6 0 0 1 8 14 Z" fill="currentColor" />
     </svg>
-    <span>{THEME_LABEL[app.theme]}</span>
+    <span>{t.header.theme[app.theme]}</span>
   </button>
 </header>
 
@@ -157,7 +160,7 @@
   .rid { width: 190px; }
   .reg { width: 78px; padding-right: 6px; }
 
-  .theme {
+  .theme, .lang {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -170,7 +173,8 @@
     text-transform: uppercase;
     color: var(--ink-3);
   }
-  .theme:hover { color: var(--ink); }
+  .theme:hover, .lang:hover { color: var(--ink); }
+  .lang { padding: 0 6px; }
 
   @media (max-width: 1180px) {
     .top { flex-wrap: wrap; row-gap: 10px; gap: 18px; }

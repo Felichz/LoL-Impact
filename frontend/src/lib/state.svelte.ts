@@ -1,4 +1,5 @@
 import { api, ApiError, type Health, type Profile } from "./api";
+import { i18n } from "./i18n.svelte";
 
 /* ---------- preferencias por visitante (nunca críticas) ---------- */
 function load(key: string, fallback = "") {
@@ -79,10 +80,14 @@ class AppState {
       if (this.route.view === "partidas" && !this.route.matchId && first) this.go("partidas", first);
     } catch (e) {
       this.profileStatus = "error";
+      const t = i18n.t;
       this.profileError =
         e instanceof ApiError && e.status === 404
-          ? `No encontramos partidas para ${rid} en ${this.region}. Revisa el Riot ID y la región; si las claves de la API caducaron, solo verás lo que ya esté en caché.`
-          : e instanceof Error ? e.message : "Error desconocido.";
+          ? (i18n.lang === "es"
+              ? `No encontramos partidas para ${rid} en ${this.region}. Revisa el Riot ID y la región; si las claves de la API caducaron, solo verás lo que ya esté en caché.`
+              : `We couldn't find games for ${rid} in ${this.region}. Check the Riot ID and region; if the API keys expired, you'll only see what's already cached.`)
+          : e instanceof ApiError ? i18n.server(e.message)
+          : e instanceof Error ? e.message : t.common.unknownError;
     }
   }
 }

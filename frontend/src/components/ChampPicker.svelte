@@ -1,8 +1,10 @@
 <script lang="ts">
   import { champions } from "../lib/champions.svelte";
+  import { i18n } from "../lib/i18n.svelte";
   import ChampIcon from "./ChampIcon.svelte";
 
   let { value = $bindable(""), label, taken = [] }: { value?: string; label: string; taken?: string[] } = $props();
+  const t = $derived(i18n.t.draftView);
 
   let q = $state("");
   let open = $state(false);
@@ -36,7 +38,7 @@
     <div class="chosen">
       <ChampIcon id={value} size={30} />
       <span class="nm">{champions.name(value)}</span>
-      <button type="button" class="clear" aria-label="Quitar {champions.name(value)} de {label}"
+      <button type="button" class="clear" aria-label={t.remove(champions.name(value), label)}
         onclick={() => { value = ""; queueMicrotask(() => input?.focus()); }}>
         <svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.3" /></svg>
       </button>
@@ -45,10 +47,10 @@
     <input
       bind:this={input}
       class="field"
-      placeholder={champions.list.length ? "Buscar campeón…" : champions.failed ? "Sin conexión a Data Dragon" : "Cargando campeones…"}
+      placeholder={champions.list.length ? t.searchPlaceholder : champions.failed ? t.ddragonOffline : t.loadingChamps}
       disabled={!champions.list.length}
       role="combobox"
-      aria-label="Campeón para {label}"
+      aria-label={t.champFor(label)}
       aria-expanded={open}
       aria-controls={id}
       aria-autocomplete="list"

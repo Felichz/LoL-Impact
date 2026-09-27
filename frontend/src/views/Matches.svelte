@@ -1,6 +1,7 @@
 <script lang="ts">
   import { app } from "../lib/state.svelte";
   import { REGIONS } from "../lib/api";
+  import { i18n } from "../lib/i18n.svelte";
   import Column from "../components/Column.svelte";
   import Loader from "../components/Loader.svelte";
   import MatchDetail from "../components/MatchDetail.svelte";
@@ -8,6 +9,7 @@
   import Pattern from "../components/Pattern.svelte";
   import Rod from "../components/Rod.svelte";
 
+  const t = $derived(i18n.t);
   const current = $derived(app.route.matchId ?? app.profile?.matches[0]?.match_id ?? null);
 
   // ejemplo ilustrativo para la portada (no son datos reales)
@@ -30,54 +32,51 @@
 {#if app.profileStatus === "idle" || (app.profileStatus === "error" && !app.profile)}
   <section class="onboard">
     <div class="copy">
-      <h1 class="display">Qué movió<br />tus partidas</h1>
-      <p class="lead">
-        Un modelo propio, entrenado con ~30.000 partidas Esmeralda+ de LAS, calcula minuto a minuto la probabilidad
-        de que gane tu equipo, qué línea tiró de ella y con cuánta seguridad lo puede decir.
-      </p>
+      <h1 class="display">{t.onboard.titleLine1}<br />{t.onboard.titleLine2}</h1>
+      <p class="lead">{t.onboard.lead}</p>
       <form class="load" onsubmit={submit}>
-        <label for="rid-big" class="label">Tu Riot ID</label>
+        <label for="rid-big" class="label">{t.onboard.yourRiotId}</label>
         <div class="row">
-          <input id="rid-big" class="field" placeholder="Nombre#TAG" autocomplete="off" spellcheck="false" bind:value={app.riotId} />
-          <select class="field" bind:value={app.region} aria-label="Región">
+          <input id="rid-big" class="field" placeholder={t.header.riotIdPlaceholder} autocomplete="off" spellcheck="false" bind:value={app.riotId} />
+          <select class="field" bind:value={app.region} aria-label={t.onboard.region}>
             {#each REGIONS as r}<option>{r}</option>{/each}
           </select>
-          <button class="btn" type="submit" disabled={!app.riotId.trim()}>Ver mis partidas<Rod /></button>
+          <button class="btn" type="submit" disabled={!app.riotId.trim()}>{t.onboard.cta}<Rod /></button>
         </div>
       </form>
       {#if app.profileStatus === "error"}
         <p class="err" role="alert">{app.profileError}</p>
       {/if}
       <ul class="points">
-        <li><b>Ningún número sin su rango.</b> Si el modelo duda, lo verás.</li>
-        <li><b>Desde tu lado.</b> Todo se orienta a tu equipo y a tu fila.</li>
-        <li><b>Por clase, no por campeón.</b> No inventamos precisión que los datos no dan.</li>
+        {#each t.onboard.points as p}
+          <li><b>{p.b}</b> {p.rest}</li>
+        {/each}
       </ul>
     </div>
     <figure class="sample">
       <Column points={SAMPLE} bind:selected={sampleSel} duration={31} win={true} />
-      <figcaption class="label">Ejemplo ilustrativo · no es una partida real</figcaption>
+      <figcaption class="label">{t.onboard.sampleCaption}</figcaption>
     </figure>
   </section>
 {:else if app.profileStatus === "loading" && !app.profile}
   <div class="center">
-    <Loader label="Cargando tus partidas…" sub="Las primeras cargas tardan un poco por los límites de la API de Riot." />
+    <Loader label={t.matches.loadingTitle} sub={t.matches.loadingSub} />
   </div>
 {:else if app.profile}
   {#if app.profile.degradado}
     <p class="banner" role="status">
-      <b>Sin conexión con Riot</b> — {app.profile.motivo}. Mostrando la última vista guardada.
+      <b>{t.matches.offline}</b> — {i18n.server(app.profile.motivo ?? "")}. {t.matches.offlineShowingCached}
     </p>
   {/if}
   {#if app.profileStatus === "loading"}
-    <p class="refresh label" role="status"><span class="spin"></span>Actualizando con Riot… mostrando tu última vista guardada</p>
+    <p class="refresh label" role="status"><span class="spin"></span>{t.matches.refreshing}</p>
   {/if}
   {#if app.profileStatus === "error"}
-    <p class="banner" role="alert"><b>No se pudo actualizar</b> — {app.profileError}</p>
+    <p class="banner" role="alert"><b>{t.matches.updateFailed}</b> — {app.profileError}</p>
   {/if}
 
   {#if app.profile.matches.length === 0}
-    <div class="center"><p class="prose">Este perfil no tiene partidas clasificatorias recientes (SoloQ) que podamos analizar.</p></div>
+    <div class="center"><p class="prose">{t.matches.noRankedGames}</p></div>
   {:else}
     <div class="split" class:has-detail={!!app.route.matchId}>
       <aside class="rail">
@@ -87,7 +86,7 @@
         <MatchList matches={app.profile.matches} {current} onpick={(id) => app.go("partidas", id)} />
       </aside>
       <div class="main">
-        <a class="back label" href="#/partidas">← Todas las partidas</a>
+        <a class="back label" href="#/partidas">{t.matches.backToAll}</a>
         {#if current}
           {#key current}<MatchDetail matchId={current} />{/key}
         {/if}

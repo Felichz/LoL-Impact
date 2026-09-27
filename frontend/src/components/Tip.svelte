@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  let { text, children, label = "Qué significa" }: { text: string; children?: Snippet; label?: string } = $props();
+  import { i18n } from "../lib/i18n.svelte";
+  let { text, children, label }: { text: string; children?: Snippet; label?: string } = $props();
+  const lbl = $derived(label ?? i18n.t.tip.label);
 
   let open = $state(false);
   let host: HTMLSpanElement | undefined = $state();
@@ -28,7 +30,7 @@
     <button type="button" class="trigger inline" aria-describedby={id}
       onfocus={show} onblur={hide} onclick={() => (open ? hide() : show())}>{@render children()}</button>
   {:else}
-    <button type="button" class="trigger q" aria-label={label} aria-describedby={id}
+    <button type="button" class="trigger q" aria-label={lbl} aria-describedby={id}
       onfocus={show} onblur={hide} onclick={() => (open ? hide() : show())}>?</button>
   {/if}
   <span {id} role="tooltip" class="bubble" class:open class:below={pos.below}

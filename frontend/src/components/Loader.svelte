@@ -1,6 +1,6 @@
 <script lang="ts">
   /* Columna que respira mientras carga. */
-  let { label = "Cargando…", sub = "" }: { label?: string; sub?: string } = $props();
+  let { label = "Loading…", sub = "" }: { label?: string; sub?: string } = $props();
   let t = $state(0);
   $effect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) { t = 0.6; return; }

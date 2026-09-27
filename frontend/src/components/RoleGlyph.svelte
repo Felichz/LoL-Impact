@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { ROLE_ES } from "../lib/api";
+  import { i18n } from "../lib/i18n.svelte";
   let { role, size = 18, label = false }: { role: string; size?: number; label?: boolean } = $props();
+  const roleName = $derived(i18n.t.common.role[role] ?? role);
 </script>
 
-<span class="role" title={ROLE_ES[role] ?? role}>
+<span class="role" title={roleName}>
   <svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true">
     <rect x="1.5" y="1.5" width="15" height="15" rx="1.5" class="frame" />
     {#if role === "TOP"}
@@ -20,7 +21,7 @@
       <circle cx="9" cy="9" r="2" class="node" />
     {/if}
   </svg>
-  {#if label}<span class="txt">{ROLE_ES[role] ?? role}</span>{/if}
+  {#if label}<span class="txt">{roleName}</span>{/if}
 </span>
 
 <style>

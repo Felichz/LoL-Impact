@@ -1,13 +1,15 @@
 <script lang="ts">
   import type { Range } from "../lib/api";
   import { signed } from "../lib/format";
+  import { i18n } from "../lib/i18n.svelte";
   import Tip from "./Tip.svelte";
 
   let { wins, losses }: { wins: Range; losses: Range } = $props();
 
+  const t = $derived(i18n.t.pattern);
   const rows = $derived([
-    { k: "Victorias", r: wins },
-    { k: "Derrotas", r: losses },
+    { k: t.wins, r: wins },
+    { k: t.losses, r: losses },
   ].filter((x) => x.r.mean != null && x.r.lo != null && x.r.hi != null));
 
   const lim = $derived(Math.max(300, ...rows.flatMap((x) => [Math.abs(x.r.lo!), Math.abs(x.r.hi!)])) * 1.1);
@@ -20,8 +22,8 @@
 
 <section class="pattern" aria-labelledby="pat-h">
   <h2 id="pat-h" class="sec-title">
-    Tu arranque típico
-    <Tip text="Tu oro al minuto 10 menos el promedio de los 10 jugadores, en tus victorias y en tus derrotas. La barra es el rango probable (bootstrap 90%): con pocas partidas es ancho, y eso es honesto." />
+    {t.title}
+    <Tip text={t.tip} />
   </h2>
 
   <div class="plot">
@@ -37,15 +39,15 @@
       </div>
     {/each}
     <div class="scale num" aria-hidden="true">
-      <span>{signed(-Math.round(lim))}</span><span>0 = promedio</span><span>{signed(Math.round(lim))}</span>
+      <span>{signed(-Math.round(lim))}</span><span>{t.zeroAvg}</span><span>{signed(Math.round(lim))}</span>
     </div>
   </div>
 
   <p class="verdict">
     {#if overlap}
-      <b>Los rangos se solapan:</b> tu oro al min 10 no separa tus victorias de tus derrotas. Lo que decide tus partidas está más adelante.
+      <b>{t.overlapVerdict}</b> {t.overlapRest}
     {:else}
-      <b>Los rangos no se solapan:</b> cómo llegas al min 10 sí va de la mano con el resultado.
+      <b>{t.noOverlapVerdict}</b> {t.noOverlapRest}
     {/if}
   </p>
 </section>

@@ -2,12 +2,14 @@
   import type { Contrib, CurvePoint } from "../lib/api";
   import { ROLES } from "../lib/api";
   import { signed } from "../lib/format";
+  import { i18n } from "../lib/i18n.svelte";
   import ForceBar from "./ForceBar.svelte";
   import RoleGlyph from "./RoleGlyph.svelte";
   import Tip from "./Tip.svelte";
 
   let { curve, selected = $bindable(0), flip }: { curve: CurvePoint[]; selected?: number; flip: boolean } = $props();
 
+  const t = $derived(i18n.t.laneForces);
   const mine = (c: Contrib) => ({ ...c, pp: flip ? -c.pp : c.pp, val_k: flip ? -c.val_k : c.val_k });
   const byRole = (pt: CurvePoint) =>
     Object.fromEntries(pt.contribs.map((c) => [c.rol, mine(c)])) as Record<string, Contrib>;
@@ -20,30 +22,27 @@
   const strongest = $derived(
     Object.values(now).filter((c) => c.identificado).sort((a, b) => Math.abs(b.pp) - Math.abs(a.pp))[0],
   );
-  const LANE = { TOP: "top", JUNGLE: "jungla", MIDDLE: "mid", BOTTOM: "bot", UTILITY: "soporte" } as Record<string, string>;
 </script>
 
 <section class="forces" aria-labelledby="lf-h">
   <header>
-    <h2 id="lf-h" class="sec-title">Qué línea tiró de la partida · min {curve[selected]?.landmark}</h2>
+    <h2 id="lf-h" class="sec-title">{t.title(curve[selected]?.landmark)}</h2>
     <p class="prose">
-      Cada cable es lo que una línea sumó (→) o restó (←) a la probabilidad de tu equipo, en puntos porcentuales,
-      según la diferencia de oro entre tu jugador y su rival directo.
+      {t.intro}
       {#if strongest}
-        En este minuto tiró más fuerte <b>{LANE[strongest.rol]}</b>
-        (<span class="num">{signed(strongest.pp, 1)} pp</span>).
+        {t.strongest(t.laneNames[strongest.rol], signed(strongest.pp, 1))}
       {/if}
     </p>
   </header>
 
-  <div class="rows" role="table" aria-label="Contribución por línea">
+  <div class="rows" role="table" aria-label={t.title(curve[selected]?.landmark)}>
     <div class="r head label" role="row">
-      <span role="columnheader">Línea</span>
-      <span role="columnheader">Diferencia de oro
-        <Tip text="Oro de tu jugador en esa línea menos el de su rival directo, en miles. +1.0k = iba 1000 de oro arriba." /></span>
-      <span role="columnheader" class="c">← en contra · a favor →</span>
-      <span role="columnheader" class="e">Efecto
-        <Tip text="Puntos porcentuales de probabilidad de victoria, ± el margen de error. Si el cable cuelga en gris, el intervalo incluye el 0: el número es indicativo, no confirmado." /></span>
+      <span role="columnheader">{t.lane}</span>
+      <span role="columnheader">{t.goldDiff}
+        <Tip text={t.goldDiffTip} /></span>
+      <span role="columnheader" class="c">{t.against}</span>
+      <span role="columnheader" class="e">{t.effect}
+        <Tip text={t.effectTip} /></span>
     </div>
     {#each ROLES as r}
       {@const c = now[r]}
@@ -55,18 +54,18 @@
           <span role="cell" class="e">
             <span class="num v" class:slack={!c.identificado}>{signed(c.pp, 1)}</span>
             <span class="num se">± {(1.96 * c.se_pp).toFixed(1)} pp</span>
-            <span class="state" class:slack={!c.identificado}>{c.identificado ? "tenso" : "flojo"}</span>
+            <span class="state" class:slack={!c.identificado}>{c.identificado ? t.taut : t.slack}</span>
           </span>
         {:else}
-          <span role="cell" class="nodata">sin datos</span><span role="cell"></span><span role="cell"></span>
+          <span role="cell" class="nodata">{t.noData}</span><span role="cell"></span><span role="cell"></span>
         {/if}
       </div>
     {/each}
   </div>
 
-  <div class="evo" role="table" aria-label="Efecto por línea y minuto" style:--n={curve.length}>
+  <div class="evo" role="table" aria-label={t.perMinute} style:--n={curve.length}>
     <div class="er label" role="row">
-      <span role="columnheader">pp por minuto</span>
+      <span role="columnheader">{t.perMinute}</span>
       {#each curve as pt, i}
         <button type="button" role="columnheader" class="mh" class:on={i === selected} onclick={() => (selected = i)}>
           {pt.landmark}′

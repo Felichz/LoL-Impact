@@ -7,6 +7,7 @@
   /* La columna: cada minuto evaluado es un nodo desplazado del eje del 50%.
      Tiempo hacia arriba, probabilidad de TU equipo en horizontal. */
   import { interval, pct } from "../lib/format";
+  import { i18n } from "../lib/i18n.svelte";
 
   let {
     points,
@@ -117,7 +118,7 @@
 </script>
 
 <div class="col" bind:clientWidth={W}>
-  <svg width={W} height={H} viewBox="0 0 {W} {H}" role="group" aria-label="Probabilidad de victoria de tu equipo por minuto">
+  <svg width={W} height={H} viewBox="0 0 {W} {H}" role="group" aria-label={i18n.t.column.ariaGroup}>
     <!-- rejilla de probabilidad -->
     {#each [0, 0.25, 0.75, 1] as g}
       <line x1={x(g)} x2={x(g)} y1={TOP - 26} y2={BOT + 16} class="grid" />
@@ -169,7 +170,7 @@
     {#each nodes as n}
       {@const sel = n.i === selected}
       <g class="ann" class:sel>
-        <text x="14" y={n.cy - 6} class="ann-min">MIN {n.m}</text>
+        <text x="14" y={n.cy - 6} class="ann-min">{i18n.t.column.minPrefix} {n.m}</text>
         <text x="14" y={n.cy + 14} class="ann-val">{pct(points[n.i].p)}</text>
         <path d="M{LBL - 6},{n.cy - 2} H{LBL + 8} L{LBL + 20},{n.cy} H{n.cx - 10}" class="leader" />
       </g>
@@ -185,7 +186,7 @@
         role="button"
         tabindex={sel ? 0 : -1}
         aria-pressed={sel}
-        aria-label="Minuto {n.m}: {pct(points[n.i].p)} para tu equipo, rango {pct(points[n.i].lo)} a {pct(points[n.i].hi)}"
+        aria-label={i18n.t.column.ariaNode(n.m, pct(points[n.i].p), pct(points[n.i].lo), pct(points[n.i].hi))}
         onclick={() => (selected = n.i)}
         onkeydown={(e) => onKey(e, n.i)}
       >
@@ -199,14 +200,14 @@
     <!-- rótulos -->
     {#if win != null}
       <text x={win ? X1 : X0} y={TOP - 50} class="final-lbl" text-anchor={win ? "end" : "start"}>
-        {win ? "Victoria" : "Derrota"} · min {duration}
+        {i18n.t.column.resultAt(win, duration)}
       </text>
     {/if}
     <text x={x(0.5)} y={H - 12} class="axis-lbl" text-anchor="middle">50%</text>
     <text x={x(0)} y={H - 12} class="axis-lbl" text-anchor="start">0%</text>
     <text x={x(1)} y={H - 12} class="axis-lbl" text-anchor="end">100%</text>
-    <text x={x(0.5) - 12} y={BOT + 40} class="side-lbl" text-anchor="end">← gana el rival</text>
-    <text x={x(0.5) + 12} y={BOT + 40} class="side-lbl" text-anchor="start">gana tu equipo →</text>
+    <text x={x(0.5) - 12} y={BOT + 40} class="side-lbl" text-anchor="end">{i18n.t.column.rivalWins}</text>
+    <text x={x(0.5) + 12} y={BOT + 40} class="side-lbl" text-anchor="start">{i18n.t.column.yourTeamWins}</text>
   </svg>
 </div>
 
