@@ -65,7 +65,7 @@ flowchart LR
 
 ## Quickstart
 
-**Deployed (Vercel)** — import the repo on vercel.com (framework and commands come from `vercel.json`), set the `RIOT_API_KEY` env var (production key), done. Production does not need the 36GB dataset: the model ships as assets (`python -m app.build_assets` after retraining, then commit). The match cache lives in `/tmp` per instance, so the first profile load on a cold instance is slower.
+**Deployed (Vercel)** — import the repo on vercel.com (`vercel.json` defines two [Services](https://vercel.com/docs/services): `frontend/` builds with Vite, `backend/` runs as a Python function — each builds independently with its own framework detection). Set the `RIOT_API_KEY` env var (production key), done. Production does not need the 36GB dataset: the model ships as assets (`python -m app.build_assets` after retraining, then commit). The match cache lives in `/tmp` per instance, so the first profile load on a cold instance is slower.
 
 **Local**
 ```bash

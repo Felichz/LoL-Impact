@@ -1,0 +1,10 @@
+[project]
+name = "lolimpact-backend"
+version = "0.1.0"
+requires-python = ">=3.12"
+# Servir en Vercel: solo esto (ver vercel.json). Entrenar localmente: requirements.txt.
+dependencies = [
+    "fastapi",
+    "pydantic",
+    "numpy",
+]
