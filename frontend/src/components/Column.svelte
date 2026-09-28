@@ -4,8 +4,8 @@
 </script>
 
 <script lang="ts">
-  /* La columna: cada minuto evaluado es un nodo desplazado del eje del 50%.
-     Tiempo hacia arriba, probabilidad de TU equipo en horizontal. */
+  /* The column: each evaluated minute is a node displaced from the 50% axis.
+     Time flows upward, your team's win probability runs horizontal. */
   import { interval, pct } from "../lib/format";
   import { i18n } from "../lib/i18n.svelte";
 
@@ -32,7 +32,7 @@
   const y = (m: number) => BOT - ((m - (mMin - 1.3)) / (mMax + 1.3 - (mMin - 1.3))) * (BOT - TOP);
   const x = (p: number) => X0 + p * (X1 - X0);
 
-  /* ---- animación: los nodos salen del eje en secuencia, con rebote ---- */
+  /* ---- animation: nodes leave the axis in sequence, with a bounce ---- */
   let t = $state(1);
   let raf = 0;
   const backOut = (s: number) => { const c1 = 1.25, c3 = c1 + 1; return 1 + c3 * (s - 1) ** 3 + c1 * (s - 1) ** 2; };
@@ -74,7 +74,7 @@
       : "",
   );
 
-  /* barras entre nodos, recortadas para dejar ver el anillo */
+  /* rods between nodes, trimmed so the ring stays visible */
   const rods = $derived(nodes.slice(1).map((b, k) => {
     const a = nodes[k];
     const dx = b.cx - a.cx, dy = b.cy - a.cy, len = Math.hypot(dx, dy) || 1;
@@ -82,7 +82,7 @@
     return { x1: a.cx + (dx / len) * r, y1: a.cy + (dy / len) * r, x2: b.cx - (dx / len) * r, y2: b.cy - (dy / len) * r };
   }));
 
-  /* cables de línea del nodo activo: largo = pp en la misma escala del eje */
+  /* lane cords of the active node: length = pp on the same axis scale */
   const laneCords = $derived.by(() => {
     const n = nodes[selected];
     if (!n || !cords.length) return [];
@@ -119,46 +119,46 @@
 
 <div class="col" bind:clientWidth={W}>
   <svg width={W} height={H} viewBox="0 0 {W} {H}" role="group" aria-label={i18n.t.column.ariaGroup}>
-    <!-- rejilla de probabilidad -->
+    <!-- probability grid -->
     {#each [0, 0.25, 0.75, 1] as g}
       <line x1={x(g)} x2={x(g)} y1={TOP - 26} y2={BOT + 16} class="grid" />
     {/each}
     <rect x={x(0.5)} y={TOP - 26} width={x(1) - x(0.5)} height={BOT - TOP + 42} class="favor" />
 
-    <!-- envolvente del 95%: cables flojos a cada lado -->
+    <!-- 95% envelope: slack cords on each side -->
     <path d={envelope} class="env" />
     {#if nodes.length > 1}
       <polyline points={nodes.map((n) => `${n.lo},${n.cy}`).join(" ")} class="slack" />
       <polyline points={nodes.map((n) => `${n.hi},${n.cy}`).join(" ")} class="slack" />
     {/if}
 
-    <!-- eje del 50% -->
+    <!-- 50% axis -->
     <line x1={x(0.5)} x2={x(0.5)} y1={TOP - 40} y2={BOT + 26} class="axis" />
     <path d="M{x(0.5) - 4.5},{TOP - 46} h9 l-4.5,7 z" class="axis-tip" />
     <path d="M{x(0.5) - 4.5},{BOT + 32} h9 l-4.5,-7 z" class="axis-tip" />
 
-    <!-- miembros de incertidumbre por nodo -->
+    <!-- uncertainty whiskers per node -->
     {#each nodes as n}
       <line x1={n.lo} x2={n.hi} y1={n.cy} y2={n.cy} class="ci95" />
       <line x1={n.lo} x2={n.lo} y1={n.cy - 4} y2={n.cy + 4} class="ci95" />
       <line x1={n.hi} x2={n.hi} y1={n.cy - 4} y2={n.cy + 4} class="ci95" />
       <line x1={n.lo50} x2={n.hi50} y1={n.cy} y2={n.cy} class="ci50" />
-      <!-- cable de tensión: distancia a la moneda al aire -->
+      <!-- tension cord: distance to the fair-coin line -->
       <line x1={x(0.5)} x2={n.cx} y1={n.cy} y2={n.cy} class="cord" class:on={n.i === selected} />
     {/each}
 
-    <!-- tramo final hasta el resultado -->
+    <!-- final stretch to the outcome -->
     {#if last && win != null}
       <line x1={last.cx} y1={last.cy} x2={finalX} y2={TOP - 34} class="final" />
       <circle cx={finalX} cy={TOP - 34} r="4.5" class="final-node" class:won={win} />
     {/if}
 
-    <!-- barras de carbono -->
+    <!-- carbon rods -->
     {#each rods as r}
       <line x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2} class="rod" />
     {/each}
 
-    <!-- cables de línea en el nodo activo -->
+    <!-- lane cords on the active node -->
     {#each laneCords as c}
       <path d={c.path} class="lane" class:slack={!c.identificado} />
       <circle cx={c.ex} cy={c.ey} r="2.3" class="lane-end" class:slack={!c.identificado} />
@@ -166,7 +166,7 @@
         text-anchor={c.right ? "start" : "end"}>{SHORT[c.rol] ?? c.rol}</text>
     {/each}
 
-    <!-- anotaciones con líneas guía -->
+    <!-- annotations with leader lines -->
     {#each nodes as n}
       {@const sel = n.i === selected}
       <g class="ann" class:sel>
@@ -176,7 +176,7 @@
       </g>
     {/each}
 
-    <!-- nodos -->
+    <!-- nodes -->
     {#each nodes as n}
       {@const sel = n.i === selected}
       <g
@@ -197,7 +197,7 @@
       </g>
     {/each}
 
-    <!-- rótulos -->
+    <!-- labels -->
     {#if win != null}
       <text x={win ? X1 : X0} y={TOP - 50} class="final-lbl" text-anchor={win ? "end" : "start"}>
         {i18n.t.column.resultAt(win, duration)}

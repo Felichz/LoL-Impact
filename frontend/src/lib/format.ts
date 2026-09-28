@@ -12,7 +12,7 @@ export const gold = (g: number) =>
 const logit = (p: number) => Math.log(p / (1 - p));
 const sigm = (x: number) => 1 / (1 + Math.exp(-x));
 
-/** Reconstruye intervalos de otra cobertura a partir del IC 95% (simétrico en logit). */
+/** Rebuilds intervals of a different coverage from the 95% CI (symmetric in logit space). */
 export function interval(lo95: number, hi95: number, z: number) {
   const a = logit(Math.min(Math.max(lo95, 1e-6), 1 - 1e-6));
   const b = logit(Math.min(Math.max(hi95, 1e-6), 1 - 1e-6));
@@ -21,7 +21,7 @@ export function interval(lo95: number, hi95: number, z: number) {
   return [sigm(mid - z * se), sigm(mid + z * se)] as const;
 }
 
-/** Estado de la partida en un minuto según dónde cae el rango. */
+/** Match state at a minute, based on where the range falls. */
 export function verdict(lo: number, hi: number) {
   const t = i18n.t.matchDetail;
   if (lo > 0.5) return { key: "favor" as const, word: t.verdict.favor, detail: t.verdictDetail.favor };

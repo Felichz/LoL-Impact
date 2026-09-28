@@ -64,12 +64,12 @@ async function req<T>(url: string, init?: RequestInit): Promise<T> {
   try {
     r = await fetch(url, init);
   } catch {
-    // texto fijo en español: se traduce en el cliente vía i18n.server()
+    // fixed Spanish text: translated on the client via i18n.server()
     throw new ApiError(0, "No hay conexión con el servidor local (¿está corriendo uvicorn en el puerto 8000?).");
   }
   if (!r.ok) {
     let msg = r.statusText;
-    try { msg = (await r.json()).detail ?? msg; } catch { /* cuerpo no JSON */ }
+    try { msg = (await r.json()).detail ?? msg; } catch { /* non-JSON body */ }
     throw new ApiError(r.status, msg);
   }
   return r.json() as Promise<T>;

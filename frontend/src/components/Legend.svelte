@@ -3,7 +3,7 @@
   const t = $derived(i18n.t.legend);
 </script>
 
-<!-- Cómo leer la columna: el sistema de símbolos, en una tira -->
+<!-- How to read the column: the symbol system, as a strip -->
 <section class="legend" aria-labelledby="lg-h">
   <h2 id="lg-h" class="sec-title">{t.title}</h2>
   <dl>

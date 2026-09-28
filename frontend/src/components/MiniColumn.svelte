@@ -1,5 +1,5 @@
 <script lang="ts">
-  /* Resumen de la partida en la lista: la misma barra de carbono, en pequeño. */
+  /* Match summary in the list: the same win-probability curve, in miniature. */
   let { curve, flip = false, width = 112, height = 30 }:
     { curve: { m: number; p: number }[]; flip?: boolean; width?: number; height?: number } = $props();
 

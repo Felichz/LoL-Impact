@@ -1,7 +1,7 @@
 import { api, ApiError, type Health, type Profile } from "./api";
 import { i18n } from "./i18n.svelte";
 
-/* ---------- preferencias por visitante (nunca críticas) ---------- */
+/* ---------- per-visitor preferences (never critical) ---------- */
 function load(key: string, fallback = "") {
   try { return localStorage.getItem(`lolimpact.${key}`) ?? fallback; } catch { return fallback; }
 }
@@ -9,7 +9,7 @@ function save(key: string, value: string | null) {
   try {
     if (value === null) localStorage.removeItem(`lolimpact.${key}`);
     else localStorage.setItem(`lolimpact.${key}`, value);
-  } catch { /* almacenamiento bloqueado: no pasa nada */ }
+  } catch { /* storage blocked: no big deal */ }
 }
 
 /* ---------- rutas por hash ---------- */
@@ -62,13 +62,13 @@ class AppState {
     save("region", this.region);
     this.profileStatus = "loading";
     this.profileError = "";
-    // la API de Riot puede tardar casi un minuto: mostramos la última vista guardada mientras tanto
+    // the Riot API can take almost a minute: show the last saved view meanwhile
     const key = `profile:${rid.toLowerCase()}:${this.region}`;
     if (!this.profile) {
       try {
         const cached = JSON.parse(load(key) || "null") as Profile | null;
         if (cached) { this.profile = cached; this.loadedName = rid.split("#")[0].trim(); }
-      } catch { /* caché ilegible: se ignora */ }
+      } catch { /* unreadable cache: ignored */ }
     }
     try {
       const p = await api.profile(rid, this.region);

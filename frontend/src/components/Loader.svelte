@@ -1,5 +1,5 @@
 <script lang="ts">
-  /* Columna que respira mientras carga. */
+  /* The breathing column, shown while loading. */
   let { label = "Loading…", sub = "" }: { label?: string; sub?: string } = $props();
   let t = $state(0);
   $effect(() => {

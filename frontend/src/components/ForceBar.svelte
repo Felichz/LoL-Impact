@@ -1,6 +1,6 @@
 <script lang="ts">
-  /* Cable de fuerza divergente desde el eje. Tenso (confirmado) = rojo recto;
-     flojo (el intervalo cubre 0) = ceniza, punteado y colgando. */
+  /* Divergent force cord from the axis. Taut (confirmed) = straight red;
+     slack (the interval covers 0) = ash gray, dotted and hanging. */
   let {
     value,
     se = 0,

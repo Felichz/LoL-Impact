@@ -145,7 +145,7 @@
     gap: var(--gap);
     align-items: start;
   }
-  /* bastidor: regla vertical entre riel y lienzo, anclada a la cabecera con un nodo rojo */
+  /* frame: vertical rule between rail and canvas, anchored to the header with a red node */
   .split::before {
     content: "";
     position: absolute;

@@ -20,7 +20,7 @@
   const taken = $derived([...Object.values(blue), ...Object.values(red)].filter(Boolean));
   const clean = (p: Picks) => Object.fromEntries(Object.entries(p).filter(([, v]) => v)) as Partial<Picks>;
 
-  // evaluación automática, con un pequeño respiro para no disparar en cada tecla
+  // automatic evaluation, with a short debounce so it doesn't fire on every keystroke
   let timer: ReturnType<typeof setTimeout>;
   $effect(() => {
     const b = clean(blue), r = clean(red);
