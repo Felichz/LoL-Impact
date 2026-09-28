@@ -1,8 +1,8 @@
-"""Cliente Riot API multi-clave para el backend de LoLImpact.
+"""Multi-key Riot API client for the LoLImpact backend.
 
-Adaptación standalone del cliente del pipeline: rate limit por clave,
-round-robin, UA correcto, manejo de 403/404/400, guardado atómico y
-anclaje de puuids a la clave que los emitió (cifrado por clave).
+Standalone adaptation of the pipeline client: per-key rate limiting,
+round-robin, correct UA, 403/404/400 handling, atomic saving and
+anchoring of puuids to the key that issued them (encrypted per key).
 """
 import json
 import os
@@ -22,7 +22,7 @@ MAX_PER_SEC = 20
 
 
 def load_keys():
-    # RIOT_API_KEY admite varias claves separadas por coma (p.ej. en Vercel)
+    # RIOT_API_KEY accepts several comma-separated keys (e.g. on Vercel)
     env = [k.strip() for k in os.environ.get("RIOT_API_KEY", "").split(",") if k.strip()]
     if env:
         return env
@@ -84,10 +84,10 @@ class RiotClient:
             time.sleep(wait)
 
     def _next(self):
-        vivas = self.alive
-        if not vivas:
+        alive_keys = self.alive
+        if not alive_keys:
             return None
-        k = vivas[self._rr % len(vivas)]
+        k = alive_keys[self._rr % len(alive_keys)]
         self._rr += 1
         return k
 
@@ -125,12 +125,12 @@ class RiotClient:
                 except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
                     time.sleep(min(2 ** attempt, 20))
                     continue
-            if key:  # clave anclada y murio: no reintentar con otras
+            if key:  # anchored key died: don't retry with others
                 return None
 
 
 def resolve_riot_id(client, name, tag):
-    """Cuenta por riot-id con la primera clave viva; devuelve (puuid, clave)."""
+    """Account by riot-id using the first alive key; returns (puuid, key)."""
     from urllib.parse import quote
     for k in client.alive:
         acc = client.get(

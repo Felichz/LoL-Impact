@@ -1,9 +1,9 @@
-"""Analisis de partidas con el modelo v3 servible.
+"""Match analysis served with the v3 model.
 
-- Curva de win probability por landmark con banda de incertidumbre (delta).
-- Waterfall de contribuciones por rol/tag con estado de identificabilidad
-  por barra (solido = identificado, punteado = cubre cero).
-- Percentiles descriptivos del oro por rol/landmark (referencia del dataset).
+- Win-probability curve per landmark with an uncertainty band (delta method).
+- Waterfall of contributions by role/tag with per-bar identifiability
+  state (solid = identified, dotted = covers zero).
+- Descriptive gold percentiles by role/landmark (dataset reference).
 """
 import json
 import math
@@ -15,7 +15,7 @@ from .features import LANDMARKS, ROLES, TAG_KEYS
 from .paths import ASSETS_DIR, data_or_asset
 
 MODEL_PATH = data_or_asset(os.path.join("models", "model_v3_full.json"), "model_v3_full.json")
-# cuantiles de gold_adv por (rol, landmark); se regeneran con `python -m app.build_assets`
+# gold_adv quantiles by (role, landmark); regenerated with `python -m app.build_assets`
 REF_PATH = os.path.join(ASSETS_DIR, "gold_quantiles.json")
 _PROBS = None
 
@@ -35,7 +35,7 @@ def model():
 
 
 def reference():
-    """Distribucion de gold_adv por (rol, landmark), resumida en cuantiles."""
+    """Distribution of gold_adv by (role, landmark), summarized as quantiles."""
     global _ref, _PROBS
     if _ref is None:
         raw = json.load(open(REF_PATH, encoding="utf-8"))
@@ -55,7 +55,7 @@ def percentile(role, landmark, gold_adv):
 
 
 def _x_vector(lm, players, patch):
-    """Vector de diseño para una partida (columnas del entrenamiento)."""
+    """Design vector for one match (training columns)."""
     L = model()["landmarks"][lm]
     order = L["col_order"]
     x = {nm: 0.0 for nm in order}
@@ -85,7 +85,7 @@ def _x_vector(lm, players, patch):
 
 
 def winprob_curve(landmark_rows):
-    """[(minuto, p_blue, lo, hi, contribuciones por rol/tag con flag)]."""
+    """[(minute, p_blue, lo, hi, per-role/tag contributions with a flag)]."""
     out = []
     for row in landmark_rows:
         lm = str(row["landmark"])
@@ -109,10 +109,10 @@ def winprob_curve(landmark_rows):
 
 
 def _contributions(row, beta, order, cov):
-    """Contribucion (pp) por rol con SE por barra -> estado por-barra.
+    """Per-role contribution (pp) with per-bar SE -> per-bar state.
 
-    SE de (beta_r * val) con val fijo observado: aprox |val| * SE(beta_r).
-    Identificado (solido) si |pp| > 1.96*SE; si no, punteado (cubre 0).
+    SE of (beta_r * val) with val a fixed observed value: approx |val| * SE(beta_r).
+    Identified (solid) if |pp| > 1.96*SE; otherwise dotted (covers zero).
     """
     beta_map = {nm: b for nm, b in zip(order, beta)}
     idx = {nm: i for i, nm in enumerate(order)}

@@ -1,8 +1,8 @@
-"""Extraccion de features por landmark desde un match+timeline.
+"""Feature extraction per landmark from a match+timeline.
 
-Misma logica que el pipeline (features_snowball.rows_from) pero autocontenida
-para una partida: por (jugador, landmark) la ventaja de oro y CS contra la
-media de los 10, kills/deaths acumuladas, rol, tags del campeon.
+Same logic as the pipeline (features_snowball.rows_from) but self-contained
+for one match: per (player, landmark) the gold and CS advantage against the
+mean of the 10, cumulative kills/deaths, role, champion tags.
 """
 import json
 import os
@@ -28,7 +28,7 @@ def champ_tags(champ):
 
 
 def match_rows(match, tl):
-    """[(landmark, {datos por jugador})] con reached según duración."""
+    """[(landmark, {per-player data})] with reached based on game duration."""
     info = match["info"]
     frames = tl["info"]["frames"]
     patch = ".".join(info["gameVersion"].split(".")[:2])
@@ -55,7 +55,7 @@ def match_rows(match, tl):
                         if ev.get("victimId") == pid:
                             deaths += 1
             players.append({
-                "name": p.get("riotIdGameName") or p.get("riotIdName") or f"jugador{pid}",
+                "name": p.get("riotIdGameName") or p.get("riotIdName") or f"player{pid}",
                 "champ": p["championName"],
                 "role": p["teamPosition"],
                 "side": "blue" if p["teamId"] == 100 else "red",

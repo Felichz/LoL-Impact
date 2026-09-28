@@ -1,11 +1,11 @@
-"""Entrena el modelo v3 COMPLETO (servible): betas + covarianza por landmark.
+"""Trains the COMPLETE (serving) v3 model: betas + covariance per landmark.
 
-Igual diseño que train_snowball_v3 (roles + tags, unidades 1000g/50cs) pero
-guarda TODO lo necesario para inferencia: intercepto, coeficientes de todas
-las columnas (incluidos parches) y la covarianza de Laplace para propagar
-bandas de incertidumbre con el metodo delta.
+Same design as train_snowball_v3 (roles + tags, 1000g/50cs units) but
+saves everything needed for inference: intercept, coefficients for all
+columns (patches included) and the Laplace covariance to propagate
+uncertainty bands with the delta method.
 
-Uso: python -m app.train_final   (desde backend/)
+Usage: python -m app.train_final   (from backend/)
 """
 import hashlib
 import json
@@ -60,11 +60,11 @@ def build_matrix(d, matches):
 
 def main():
     df = pd.read_csv(FEAT, dtype={"patch": str})
-    parches = sorted(df["patch"].unique(),
+    patches = sorted(df["patch"].unique(),
                      key=lambda p: tuple(int(x) for x in p.split(".")))
-    keep = parches[-4:]
+    keep = patches[-4:]
     df = df[df["patch"].isin(keep)].reset_index(drop=True)
-    print(f"parches: {keep} | filas: {len(df)}")
+    print(f"patches: {keep} | rows: {len(df)}")
 
     landmarks = {}
     for m in LANDMARKS:
@@ -111,16 +111,16 @@ def main():
             h.update(chunk)
     out = {
         "version": "v3-full", "region": "LAS",
-        "tipo_intervalo": "IC de credibilidad de Laplace condicionado a C",
-        "notas": "conversion por rol + tag; campeones individuales NO identificables",
-        "parches": keep,
-        "procedencia": {"features_sha256_16": h.hexdigest()[:16]},
+        "interval_type": "Laplace credibility CI conditional on C",
+        "notes": "conversion by role + tag; individual champions NOT identifiable",
+        "patches": keep,
+        "provenance": {"features_sha256_16": h.hexdigest()[:16]},
         "landmarks": landmarks,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False)
-    print(f"modelo servible en {OUT}")
+    print(f"serving model written to {OUT}")
 
 
 if __name__ == "__main__":

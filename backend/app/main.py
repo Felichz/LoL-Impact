@@ -4,7 +4,7 @@ Endpoints:
   GET  /api/health
   GET  /api/profile?riot_id=LP Felix&region=LAS
   GET  /api/match/{region}/{matchId}
-  POST /api/draft          {"blue": {rol: champ...}, "red": {...}}
+  POST /api/draft          {"blue": {role: champ...}, "red": {...}}
   GET  /                     (frontend)
 """
 import json
@@ -26,13 +26,13 @@ QUEUE_SOLOQ = 420
 app = FastAPI(title="LoLImpact", version="0.1")
 client = RiotClient()
 
-# stats personales con bootstrap por partida (mismo principio que el modelo)
+# personal stats with per-match bootstrap (same principle as the model)
 import random
 import statistics
 
 
 def match_from_cache(match_id):
-    # dataset local primero, luego la caché donde fetch_match guarda lo nuevo
+    # local dataset first, then the cache where fetch_match saves new fetches
     for p in [os.path.join(DATA_DIR, "LAS", sub, f"{match_id}.json")
               for sub in ("matches", "matches_emerald", "draft_matches")] + \
              [os.path.join(CACHE_DIR, "matches", f"{match_id}.json")]:
@@ -86,7 +86,7 @@ def profile(riot_id: str, region: str = "LAS"):
     cache_p = os.path.join(CACHE_DIR, f"profile_{name.lower().replace(' ', '')}.json")
     cached = load_json(cache_p)
 
-    # 1) fuente API (si hay claves)
+    # 1) API source (when keys are alive)
     match_ids = []
     puuid = None
     if client.alive:
@@ -96,7 +96,7 @@ def profile(riot_id: str, region: str = "LAS"):
                 region, f"/lol/match/v5/matches/by-puuid/{puuid}/ids"
                         f"?queue={QUEUE_SOLOQ}&count=20"), key=key)
             match_ids = ml or []
-    # 2) fallback/merge: indice local por riot-id
+    # 2) fallback/merge: local index by riot-id
     local_ids = build_index.lookup(name)
     seen = set()
     all_ids = [m for m in (match_ids + local_ids) if not (m in seen or seen.add(m))]
@@ -107,7 +107,7 @@ def profile(riot_id: str, region: str = "LAS"):
         raise HTTPException(404, "sin datos: ni API viva ni partidas en cache")
 
     matches = []
-    patrones = []
+    patterns = []
     for mid in all_ids[:20]:
         m = fetch_match(mid, region)
         if not m:
@@ -139,15 +139,15 @@ def profile(riot_id: str, region: str = "LAS"):
                               for c in curve]
             if my_p and mine:
                 entry["my_gold_adv_10"] = round(my_p["gold_adv"])
-                patrones.append({"win": entry["win"],
+                patterns.append({"win": entry["win"],
                                  "gold_adv_10": round(my_p["gold_adv"])})
         matches.append(entry)
 
-    # patron personal con bootstrap (n pocas partidas -> IC ancho y visible)
-    patron = None
-    if len(patrones) >= 6:
-        wins = [p["gold_adv_10"] for p in patrones if p["win"]]
-        loss = [p["gold_adv_10"] for p in patrones if not p["win"]]
+    # personal pattern with bootstrap (small n -> wide, honest CI)
+    pattern = None
+    if len(patterns) >= 6:
+        wins = [p["gold_adv_10"] for p in patterns if p["win"]]
+        loss = [p["gold_adv_10"] for p in patterns if not p["win"]]
         rng = random.Random(7)
 
         def boot(vals):
@@ -160,11 +160,11 @@ def profile(riot_id: str, region: str = "LAS"):
 
         w_mean, w_lo, w_hi = boot(wins)
         l_mean, l_lo, l_hi = boot(loss)
-        patron = {"wins": {"n": len(wins), "mean": w_mean, "lo": w_lo, "hi": w_hi},
+        pattern = {"wins": {"n": len(wins), "mean": w_mean, "lo": w_lo, "hi": w_hi},
                   "losses": {"n": len(loss), "mean": l_mean, "lo": l_lo, "hi": l_hi}}
 
     out = {"riot_id": riot_id, "puuid": puuid,
-           "api_viva": bool(client.alive), "matches": matches, "patron": patron}
+           "api_viva": bool(client.alive), "matches": matches, "patron": pattern}
     save_json(cache_p, out)
     return out
 
@@ -195,18 +195,18 @@ def draft(d: Draft):
            for a, row in zip(order, (r for r in L["cov"]))}
 
     def conv(champ, role):
-        nm_rol = f"rol_gold:{role}"
-        parts = [beta.get(nm_rol, 0.0)]
+        col_name = f"rol_gold:{role}"
+        parts = [beta.get(col_name, 0.0)]
         tags = champ_tags(champ)
-        se2 = cov.get(nm_rol, {}).get(nm_rol, 0.0)
+        se2 = cov.get(col_name, {}).get(col_name, 0.0)
         for t in tags:
             parts.append(beta.get(f"tag_gold:{t}", 0.0))
         slope = sum(parts)
         var = cov.get(nm_rol, {}).get(nm_rol, 0.0)
-        # aproximacion conservadora: suma de varianzas de rol y tags
+        # conservative approximation: sum of role and tag variances
         for t in tags:
             var += cov.get(f"tag_gold:{t}", {}).get(f"tag_gold:{t}", 0.0)
-        # betas ya estan en unidades de k-oro -> pp por 1000g = beta * 25
+        # betas are already in k-gold units -> pp per 1000g = beta * 25
         se = _m.sqrt(max(var, 0.0)) * 25
         pp = slope * 25
         return {"champ": champ, "role": role, "tags": tags,
@@ -223,7 +223,7 @@ def draft(d: Draft):
 
 
 def _champ_id_map():
-    """championId (int) -> nombre via Data Dragon, cacheado."""
+    """championId (int) -> name via Data Dragon, cached."""
     import urllib.request
     p = os.path.join(CACHE_DIR, "champions.json")
     m = load_json(p)
@@ -240,20 +240,20 @@ def _champ_id_map():
 
 
 def _infer_roles(champs):
-    """Rol sugerido por tags; el usuario puede corregirlo en la UI."""
+    """Role suggested from champion tags; the user can correct it in the UI."""
     from .features import champ_tags
     taken = set()
     out = {}
-    prioridad = [("UTILITY", lambda t: "Support" in t),
-                 ("BOTTOM", lambda t: "Marksman" in t and "Support" not in t),
-                 ("MIDDLE", lambda t: "Mage" in t or "Assassin" in t),
-                 ("TOP", lambda t: "Tank" in t or "Fighter" in t)]
-    for rol, test in prioridad:
+    priority = [("UTILITY", lambda t: "Support" in t),
+                ("BOTTOM", lambda t: "Marksman" in t and "Support" not in t),
+                ("MIDDLE", lambda t: "Mage" in t or "Assassin" in t),
+                ("TOP", lambda t: "Tank" in t or "Fighter" in t)]
+    for role, test in priority:
         for c in champs:
             if c in out:
                 continue
             if test(champ_tags(c)):
-                out[c] = rol
+                out[c] = role
                 break
     for c in champs:
         if c not in out:
@@ -263,10 +263,10 @@ def _infer_roles(champs):
 
 @app.get("/api/live")
 def live(riot_id: str, region: str = "LAS"):
-    """Partida en curso: que lane rentan mas las kills tempranas.
+    """Game in progress: which lanes pay off for early kills.
 
-    Asumcion explicita: 1 kill en linea = intercambio de ~600g en el
-    diferencial (+300 asesino, -300 victima), sin placas ni EXP.
+    Explicit assumption: 1 kill in lane = a ~600g swing in the
+    gold differential (+300 killer, -300 victim), no plates or EXP.
     """
     import math as _m
     name, _, tag = riot_id.partition("#")
@@ -323,7 +323,7 @@ def live(riot_id: str, region: str = "LAS"):
     return out
 
 
-# frontend compilado (cd frontend && npm run build); en desarrollo usar `npm run dev`
+# built frontend (cd frontend && npm run build); for development use `npm run dev`
 if os.path.isdir(os.path.join(FRONTEND, "assets")):
     app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND, "assets")), name="assets")
 
@@ -337,5 +337,5 @@ def favicon():
 def index():
     p = os.path.join(FRONTEND, "index.html")
     if not os.path.exists(p):
-        raise HTTPException(503, "frontend sin compilar: cd frontend && npm install && npm run build")
+        raise HTTPException(503, "frontend not built: cd frontend && npm install && npm run build")
     return FileResponse(p)

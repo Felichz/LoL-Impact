@@ -1,9 +1,9 @@
-"""Rutas compartidas del backend.
+"""Shared backend paths.
 
-- DATA_DIR: datasets locales (36GB, no se commitea). Puede no existir (p.ej. en Vercel).
-- ASSETS_DIR: lo mínimo para servir, versionado (modelo, tags, cuantiles de oro).
-  Se regenera con `python -m app.build_assets` tras re-entrenar.
-- CACHE_DIR: caché escribible. En Vercel el disco es de solo lectura salvo /tmp.
+- DATA_DIR: local datasets (36GB, not committed). May not exist (e.g. on Vercel).
+- ASSETS_DIR: the minimum needed to serve, versioned (model, tags, gold quantiles).
+  Regenerated with `python -m app.build_assets` after retraining.
+- CACHE_DIR: writable cache. On Vercel the disk is read-only except /tmp.
 """
 import os
 
@@ -20,6 +20,6 @@ else:
 
 
 def data_or_asset(data_rel, asset_name):
-    """Prefiere el archivo del dataset local (lo más fresco); si no, el asset versionado."""
+    """Prefer the local dataset file (freshest); fall back to the versioned asset."""
     p = os.path.join(DATA_DIR, data_rel)
     return p if os.path.exists(p) else os.path.join(ASSETS_DIR, asset_name)

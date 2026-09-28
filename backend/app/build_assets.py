@@ -1,10 +1,10 @@
-"""Empaqueta lo mínimo para servir sin el dataset completo (deploy en Vercel).
+"""Packages the minimum needed to serve without the full dataset (Vercel deploy).
 
     python -m app.build_assets
 
-Copia el modelo y los tags de campeones a app/assets/ y resume la distribución
-de gold_adv por (rol, landmark) en cuantiles, para calcular percentiles sin
-cargar el CSV de 130MB ni pandas en producción.
+Copies the model and champion tags to app/assets/ and summarizes the
+gold_adv distribution by (role, landmark) as quantiles, so percentiles can
+be computed without loading the 130MB CSV or pandas in production.
 """
 import json
 import os
@@ -15,7 +15,7 @@ import pandas as pd
 
 from .paths import ASSETS_DIR, DATA_DIR
 
-QUANTILES = 201  # cada 0.5 percentil
+QUANTILES = 201  # every 0.5 percentile
 
 
 def main():
@@ -34,7 +34,7 @@ def main():
         out[f"{role}:{lm}"] = {"n": int(len(s)), "q": [round(float(v), 1) for v in q]}
     with open(os.path.join(ASSETS_DIR, "gold_quantiles.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, separators=(",", ":"))
-    print(f"assets: modelo, tags y {len(out)} distribuciones ({QUANTILES} cuantiles)")
+    print(f"assets: model, tags and {len(out)} distributions ({QUANTILES} quantiles)")
 
 
 if __name__ == "__main__":

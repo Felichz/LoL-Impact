@@ -1,7 +1,7 @@
-"""Índice de partidas por riot-id (fallback sin API).
+"""Match index by riot-id (no-API fallback).
 
-Escanea los JSON cacheados y mapea gameName -> [matchIds]. Se construye una
-vez (python -m app.build_index) y se actualiza al guardar partidas nuevas.
+Scans the cached JSON files and maps gameName -> [matchIds]. Built once
+(python -m app.build_index) and updated as new matches are saved.
 """
 import glob
 import json
@@ -39,8 +39,8 @@ def build():
     os.makedirs(os.path.dirname(IDX_PATH), exist_ok=True)
     with open(IDX_PATH, "w", encoding="utf-8") as f:
         json.dump(acc, f, ensure_ascii=False)
-    print(f"indice: {len(acc)} jugadores, "
-          f"{sum(len(v) for v in acc.values())} partidas")
+    print(f"index: {len(acc)} players, "
+          f"{sum(len(v) for v in acc.values())} matches")
     return acc
 
 
