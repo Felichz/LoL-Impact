@@ -9,8 +9,8 @@
 > The public deploy currently runs without a Riot API key, so the Games and Live views only render from a local run. Draft works on the live site. The screenshots below come from a local run with cached data.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/lol-main-dark.webp">
-  <img alt="LoLImpact match view. Left: the player's recent ranked games, each with a small win-probability sparkline. Middle: a minute 12 summary showing 64% win probability, a likely range of 55% to 72%, +17 pp since minute 10 and 69% model accuracy. Right: a vertical column chart plotting the team's win probability from minute 8 to minute 20 against a dashed 50% axis, with interval bands around each node and lane cords at the selected minute." src="docs/screenshots/lol-main-light.webp">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/lol-demo-dark.webp">
+  <img alt="Recording of the LoLImpact match view while the selected minute steps from 12 back to 8, up to 20 and back to 12, with the readout and the lane cords updating at each minute. Left: the player's recent ranked games, each with a small win-probability sparkline. Middle: a minute 12 summary showing 64% win probability, a likely range of 55% to 72%, +17 pp since minute 10 and 69% model accuracy. Right: a vertical column chart plotting the team's win probability from minute 8 to minute 20 against a dashed 50% axis, with interval bands around each node and lane cords at the selected minute." src="docs/screenshots/lol-demo-light.webp">
 </picture>
 
 ## What it is
