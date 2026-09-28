@@ -32,13 +32,13 @@ export const en = {
 
   footer: {
     disclaimer: "LoLImpact isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc.",
-    modelInfo: "Model v3 · ~30k Emerald+ LAS games · correlational attributions, not causal",
+    modelInfo: "Model v3 · Emerald+ LAS solo queue, patches 16.16–16.19 · correlational attributions, not causal",
   },
 
   onboard: {
     titleLine1: "What moved",
     titleLine2: "your games",
-    lead: "A model trained on ~30,000 Emerald+ LAS games computes, minute by minute, the probability your team wins, which lane pulled the hardest, and how confident it can be.",
+    lead: "A model trained on recent Emerald+ LAS solo queue games (patches 16.16–16.19) computes, minute by minute, the probability your team wins, which lane pulled the hardest, and how confident it can be.",
     yourRiotId: "Your Riot ID",
     region: "Region",
     cta: "See my games",
@@ -149,7 +149,7 @@ export const en = {
     cs: "CS",
     csTip: "Minions + monsters, compared the same way as gold: against the game's average.",
     vsLane: "Vs. their lane",
-    vsLaneTip: "What percentage of players in that role (across ~30k Emerald+ games) had LESS gold at this minute. 85 = richer than 85% of them.",
+    vsLaneTip: "What percentage of players in that role (from 20k+ Emerald+ LAS games) had a SMALLER gold lead over their lane opponent at this minute. 85 = further ahead than 85% of them.",
     yourTeam: "Your team",
     rival: "Rival",
     you: "YOU",

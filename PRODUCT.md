@@ -16,7 +16,7 @@ The author (LP Felix#LAS) plus friends and duo partners who occasionally load th
 
 ## Product Purpose
 
-LoLImpact explains what moved a player's ranked games using its own win-probability model trained on ~30k Emerald+ LAS matches. It answers three questions:
+LoLImpact explains what moved a player's ranked games using its own win-probability model trained on recent Emerald+ LAS solo queue matches (patches 16.16 to 16.19). It answers three questions:
 
 1. **My Games** — after a game: how did my team's win probability evolve minute by minute (landmarks 8, 10, 12, 15, 18, 20), which lane moved it, and where did each player stand vs. their role.
 2. **Live** — during loading screen / early game: which lanes' early kills are worth most (per champion class), so you know whom not to feed and where to invest.

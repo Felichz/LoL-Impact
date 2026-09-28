@@ -32,13 +32,13 @@ export const es = {
 
   footer: {
     disclaimer: "LoLImpact no está afiliado ni respaldado por Riot Games. League of Legends es propiedad de Riot Games, Inc.",
-    modelInfo: "Modelo v3 · ~30k partidas Esmeralda+ LAS · atribuciones correlacionales, no causales",
+    modelInfo: "Modelo v3 · SoloQ Esmeralda+ LAS, parches 16.16–16.19 · atribuciones correlacionales, no causales",
   },
 
   onboard: {
     titleLine1: "Qué movió",
     titleLine2: "tus partidas",
-    lead: "Un modelo propio, entrenado con ~30.000 partidas Esmeralda+ de LAS, calcula minuto a minuto la probabilidad de que gane tu equipo, qué línea tiró de ella y con cuánta seguridad lo puede decir.",
+    lead: "Un modelo propio, entrenado con partidas recientes de SoloQ Esmeralda+ de LAS (parches 16.16–16.19), calcula minuto a minuto la probabilidad de que gane tu equipo, qué línea tiró de ella y con cuánta seguridad lo puede decir.",
     yourRiotId: "Tu Riot ID",
     region: "Región",
     cta: "Ver mis partidas",
@@ -149,7 +149,7 @@ export const es = {
     cs: "CS",
     csTip: "Súbditos + monstruos, comparado igual que el oro: contra el promedio de la partida.",
     vsLane: "Frente a su línea",
-    vsLaneTip: "Qué porcentaje de jugadores de esa posición (en ~30k partidas Esmeralda+) tenía MENOS oro en este minuto. 85 = iba más rico que el 85%.",
+    vsLaneTip: "Qué porcentaje de jugadores de esa posición (en más de 20.000 partidas Esmeralda+ de LAS) tenía MENOS ventaja de oro sobre su rival de línea en este minuto. 85 = iba más adelante que el 85%.",
     yourTeam: "Tu equipo",
     rival: "Rival",
     you: "TÚ",
