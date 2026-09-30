@@ -2,7 +2,7 @@
 
 **Minute-by-minute win probability for League of Legends ranked games, with every estimate shown next to its uncertainty.**
 
-[Live site](https://lol-impact.vercel.app) · [Case study](https://anderssonfelix.com/work/lolimpact/) · [Author: Felix Andersson](https://anderssonfelix.com)
+[Live site](https://lol-impact.vercel.app) · [Case study](https://portfolio-felix-teal.vercel.app/work/lolimpact/) · [Author: Felix Andersson](https://portfolio-felix-teal.vercel.app/)
 
 ![Python](https://img.shields.io/badge/python-3.12+-3776ab) ![FastAPI](https://img.shields.io/badge/FastAPI-009485?logo=fastapi&logoColor=white) ![Svelte 5](https://img.shields.io/badge/Svelte_5-ff3e00?logo=svelte&logoColor=white) ![scikit-learn](https://img.shields.io/badge/scikit--learn-f89939?logo=scikit-learn&logoColor=white) ![Vercel](https://img.shields.io/badge/deploy-Vercel-000?logo=vercel&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green)
 
