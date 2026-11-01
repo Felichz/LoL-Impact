@@ -74,7 +74,12 @@ body {
   min-height: 100dvh;
   background: var(--ground);
   color: var(--ink);
-  font: 400 14.5px/1.55 var(--font-sans);
+  /* Longhands, not the font shorthand: with a var() in it and font-feature-settings after it, the
+     CSSOM can no longer serialize the shorthand (the portfolio's tapes read styles from there). */
+  font-weight: 400;
+  font-size: 14.5px;
+  line-height: 1.55;
+  font-family: var(--font-sans);
   font-feature-settings: "ss01";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
