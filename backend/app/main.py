@@ -12,7 +12,7 @@ import os
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -79,8 +79,44 @@ def health():
             "modelo": analysis.model().get("version")}
 
 
-@app.get("/api/profile")
-def profile(riot_id: str, region: str = "LAS"):
+def _match_entry(mid, region, name, patterns):
+    m = fetch_match(mid, region)
+    if not m:
+        return None
+    me = next((p for p in m["info"]["participants"]
+               if (p.get("riotIdGameName") or "").lower() == name.lower()), None)
+    if me is None:
+        return None
+    entry = {
+        "match_id": mid, "champ": me["championName"], "role": me["teamPosition"],
+        "win": bool(me["win"]),
+        "side": "blue" if me["teamId"] == 100 else "red",
+        "kda": [me["kills"], me["deaths"], me["assists"]],
+        "duration_min": round(m["info"]["gameDuration"] / 60),
+        "patch": ".".join(m["info"]["gameVersion"].split(".")[:2]),
+    }
+    tl = fetch_timeline(mid, region)
+    if tl:
+        from .features import match_rows
+        from .analysis import winprob_curve
+        rows = match_rows(m, tl)
+        curve = winprob_curve(rows)
+        mine = next((r for r in rows if r["landmark"] == 10), None)
+        my_p = None
+        if mine:
+            my_p = next((p for p in mine["players"]
+                         if p["name"].lower() == name.lower()), None)
+        entry["curve"] = [{"m": c["landmark"], "p": c["p_blue"]}
+                          for c in curve]
+        if my_p and mine:
+            entry["my_gold_adv_10"] = round(my_p["gold_adv"])
+            patterns.append({"win": entry["win"],
+                             "gold_adv_10": round(my_p["gold_adv"])})
+    return entry
+
+
+def _profile_events(riot_id, region):
+    """Yields progress events; the last one is either 'done' or 'error'."""
     name, _, tag = riot_id.partition("#")
     tag = tag or region
     cache_p = os.path.join(CACHE_DIR, f"profile_{name.lower().replace(' ', '')}.json")
@@ -102,46 +138,23 @@ def profile(riot_id: str, region: str = "LAS"):
     all_ids = [m for m in (match_ids + local_ids) if not (m in seen or seen.add(m))]
 
     if not all_ids and cached:
-        return {**cached, "degradado": True, "motivo": "sin claves ni cache nuevo"}
+        yield {"type": "done", "profile": {**cached, "degradado": True,
+                                           "motivo": "sin claves ni cache nuevo"}}
+        return
     if not all_ids:
-        raise HTTPException(404, "sin datos: ni API viva ni partidas en cache")
+        yield {"type": "error", "status": 404,
+               "detail": "sin datos: ni API viva ni partidas en cache"}
+        return
 
+    ids = all_ids[:20]
+    yield {"type": "start", "total": len(ids)}
     matches = []
     patterns = []
-    for mid in all_ids[:20]:
-        m = fetch_match(mid, region)
-        if not m:
-            continue
-        me = next((p for p in m["info"]["participants"]
-                   if (p.get("riotIdGameName") or "").lower() == name.lower()), None)
-        if me is None:
-            continue
-        entry = {
-            "match_id": mid, "champ": me["championName"], "role": me["teamPosition"],
-            "win": bool(me["win"]),
-            "side": "blue" if me["teamId"] == 100 else "red",
-            "kda": [me["kills"], me["deaths"], me["assists"]],
-            "duration_min": round(m["info"]["gameDuration"] / 60),
-            "patch": ".".join(m["info"]["gameVersion"].split(".")[:2]),
-        }
-        tl = fetch_timeline(mid, region)
-        if tl:
-            from .features import match_rows
-            from .analysis import winprob_curve
-            rows = match_rows(m, tl)
-            curve = winprob_curve(rows)
-            mine = next((r for r in rows if r["landmark"] == 10), None)
-            my_p = None
-            if mine:
-                my_p = next((p for p in mine["players"]
-                             if p["name"].lower() == name.lower()), None)
-            entry["curve"] = [{"m": c["landmark"], "p": c["p_blue"]}
-                              for c in curve]
-            if my_p and mine:
-                entry["my_gold_adv_10"] = round(my_p["gold_adv"])
-                patterns.append({"win": entry["win"],
-                                 "gold_adv_10": round(my_p["gold_adv"])})
-        matches.append(entry)
+    for i, mid in enumerate(ids):
+        entry = _match_entry(mid, region, name, patterns)
+        if entry:
+            matches.append(entry)
+        yield {"type": "match", "done": i + 1, "total": len(ids), "entry": entry}
 
     # personal pattern with bootstrap (small n -> wide, honest CI)
     pattern = None
@@ -166,7 +179,24 @@ def profile(riot_id: str, region: str = "LAS"):
     out = {"riot_id": riot_id, "puuid": puuid,
            "api_viva": bool(client.alive), "matches": matches, "patron": pattern}
     save_json(cache_p, out)
-    return out
+    yield {"type": "done", "profile": out}
+
+
+@app.get("/api/profile")
+def profile(riot_id: str, region: str = "LAS"):
+    for ev in _profile_events(riot_id, region):
+        if ev["type"] == "error":
+            raise HTTPException(ev["status"], ev["detail"])
+        if ev["type"] == "done":
+            return ev["profile"]
+
+
+@app.get("/api/profile/stream")
+def profile_stream(riot_id: str, region: str = "LAS"):
+    """Same as /api/profile, as NDJSON progress events (one JSON object per line)."""
+    lines = (json.dumps(ev, ensure_ascii=False) + "\n" for ev in _profile_events(riot_id, region))
+    return StreamingResponse(lines, media_type="application/x-ndjson",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
 @app.get("/api/match/{region}/{match_id}")
@@ -198,11 +228,10 @@ def draft(d: Draft):
         col_name = f"rol_gold:{role}"
         parts = [beta.get(col_name, 0.0)]
         tags = champ_tags(champ)
-        se2 = cov.get(col_name, {}).get(col_name, 0.0)
         for t in tags:
             parts.append(beta.get(f"tag_gold:{t}", 0.0))
         slope = sum(parts)
-        var = cov.get(nm_rol, {}).get(nm_rol, 0.0)
+        var = cov.get(col_name, {}).get(col_name, 0.0)
         # conservative approximation: sum of role and tag variances
         for t in tags:
             var += cov.get(f"tag_gold:{t}", {}).get(f"tag_gold:{t}", 0.0)
