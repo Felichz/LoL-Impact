@@ -213,7 +213,7 @@
   .res.w { color: var(--red-ink); }
   .note { font-size: 12.5px; color: var(--ink-3); }
 
-  .verdict { display: grid; gap: 14px; padding: 22px 24px; background: var(--paper); border: 1px solid var(--rule); border-left: 0; border-radius: var(--radius); position: relative; }
+  .verdict { display: grid; gap: 14px; padding: 22px 24px; background: var(--paper); border-style: solid; border-width: 1px 1px 1px 0; border-color: var(--rule); border-radius: var(--radius); position: relative; }
   .verdict::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--red); }
   .headline { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); text-wrap: balance; }
   .facts { list-style: none; padding: 0; display: grid; gap: 8px; }
