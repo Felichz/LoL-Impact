@@ -2,18 +2,21 @@
   import { api, ApiError, type LiveEntry, type LiveResult } from "../lib/api";
   import { app } from "../lib/state.svelte";
   import { champions } from "../lib/champions.svelte";
-  import { signed } from "../lib/format";
+  import { chance } from "../lib/format";
   import { i18n } from "../lib/i18n.svelte";
   import ChampIcon from "../components/ChampIcon.svelte";
   import ForceBar from "../components/ForceBar.svelte";
   import Loader from "../components/Loader.svelte";
   import Rod from "../components/Rod.svelte";
+  import WinCondition from "../components/WinCondition.svelte";
+  import type { WCEntry } from "../lib/story";
 
   let status = $state<"idle" | "loading" | "ok" | "error">("idle");
   let data = $state<LiveResult | null>(null);
   let error = $state("");
 
   const t = $derived(i18n.t.liveView);
+  const tc = $derived(i18n.t.common);
 
   async function detect() {
     if (!app.riotId.trim()) return;
@@ -28,35 +31,46 @@
         : e instanceof ApiError && e.status === 404
         ? t.accountNotFound(app.riotId, app.region)
         : e instanceof ApiError ? i18n.server(e.message)
-        : e instanceof Error ? e.message : i18n.t.common.unknownError;
+        : e instanceof Error ? e.message : tc.unknownError;
     }
   }
 
   const sorted = (xs: LiveEntry[]) => [...xs].sort((a, b) => b.kill2 - a.kill2);
   const game = $derived(data && data.en_partida ? data : null);
-  const groups = $derived(game ? [
-    { title: t.rivalTitle, note: t.rivalNote, rows: sorted(game[game.tu_lado === "blue" ? "red" : "blue"]) },
-    { title: t.teamTitle, note: t.teamNote, rows: sorted(game[game.tu_lado]) },
-  ] : []);
+  const rivals = $derived(game ? sorted(game[game.tu_lado === "blue" ? "red" : "blue"]) : []);
+  const allies = $derived(game ? sorted(game[game.tu_lado]) : []);
   const MAX = 30;
-  const SAMPLE = $derived(i18n.lang === "es" ? [
-    { champ: "Jinx", cls: "Bot · Tirador", v: 15.5, se: 2.4, ok: true },
-    { champ: "Ahri", cls: "Mid · Mago · Asesino", v: 13.3, se: 2.5, ok: true },
-    { champ: "Leona", cls: "Soporte · Tanque · Apoyo", v: 2.1, se: 2.2, ok: false },
-  ] : [
-    { champ: "Jinx", cls: "Bot · Marksman", v: 15.5, se: 2.4, ok: true },
-    { champ: "Ahri", cls: "Mid · Mage · Assassin", v: 13.3, se: 2.5, ok: true },
-    { champ: "Leona", cls: "Support · Tank · Support", v: 2.1, se: 2.2, ok: false },
-  ]);
+  const toWC = (xs: LiveEntry[]): WCEntry[] =>
+    xs.map((x) => ({ champ: x.champ, role: x.role, tags: x.tags, value: x.kill2, se: x.se_kill2, sure: x.identificado }));
+
+  const SAMPLE: LiveEntry[] = [
+    { champ: "Jinx", role: "BOTTOM", tags: ["Marksman"], pp1000: 12.9, se: 2, kill1: 7.7, kill2: 15.5, se_kill2: 2.4, identificado: true },
+    { champ: "Ahri", role: "MIDDLE", tags: ["Mage", "Assassin"], pp1000: 11.1, se: 2.1, kill1: 6.7, kill2: 13.3, se_kill2: 2.5, identificado: true },
+    { champ: "Leona", role: "UTILITY", tags: ["Tank", "Support"], pp1000: 1.8, se: 1.8, kill1: 1.1, kill2: 2.1, se_kill2: 2.2, identificado: false },
+  ];
 </script>
+
+
+{#snippet row(x: LiveEntry, i: number)}
+  <li class="row">
+    <span class="rank num">{i + 1}</span>
+    <ChampIcon id={x.champ} size={32} />
+    <span class="who">
+      <span class="nm">{champions.name(x.champ)}</span>
+      <span class="cls">{tc.role[x.role] ?? x.role} · {x.tags.join(" · ") || tc.noClass}</span>
+    </span>
+    <ForceBar value={x.kill2} se={x.se_kill2} max={MAX} confirmed={x.identificado} />
+    <span class="vals">
+      <span class="num v" class:slack={!x.identificado}>{chance(x.kill2)}</span>
+      <span class="sub">± {(1.96 * x.se_kill2).toFixed(1)}</span>
+    </span>
+  </li>
+{/snippet}
 
 <section class="live">
   <header class="head">
     <h1 class="display">{t.title}</h1>
-    <p class="prose">
-      {t.intro}
-      <b>{t.introBold}</b> {t.introRest}
-    </p>
+    <p class="prose">{t.intro}</p>
     <button class="btn" type="button" onclick={detect} disabled={!app.riotId.trim() || status === "loading"}>
       {status === "loading" ? t.detecting : t.detect}<Rod />
     </button>
@@ -66,19 +80,9 @@
     <p class="empty prose">{t.noRiotId}</p>
   {:else if status === "idle"}
     <div class="empty">
-      <p class="prose">{t.idlePrompt(t.detect)} {t.idleSearching(app.riotId, app.region)}</p>
+      <p class="prose">{t.idlePrompt} {t.idleSearching(app.riotId, app.region)}</p>
       <figure class="preview" aria-label={t.previewLabel}>
-        <ol>
-          {#each SAMPLE as x, i}
-            <li>
-              <span class="rank num">{i + 1}</span>
-              <ChampIcon id={x.champ} size={36} />
-              <span class="who"><span class="nm">{champions.name(x.champ)}</span><span class="cls">{x.cls}</span></span>
-              <ForceBar value={x.v} se={x.se} max={MAX} confirmed={x.ok} />
-              <span class="vals"><span class="num v" class:slack={!x.ok}>{signed(x.v, 1)} pp</span><span class="sub">± {(1.96 * x.se).toFixed(1)} · {t.ifWin}</span></span>
-            </li>
-          {/each}
-        </ol>
+        <WinCondition title={i18n.t.winCon.titleLive} rival={toWC(SAMPLE)} unit={i18n.t.winCon.perKills} />
         <figcaption class="label">{t.previewCaption}</figcaption>
       </figure>
     </div>
@@ -92,34 +96,23 @@
       <p class="prose">{i18n.server(data.mensaje)} {t.noGameRest}</p>
     </div>
   {:else if game}
-    <p class="meta label">
-      <span class="dot"></span>{t.metaLine(game.gameMode, game.minutos)}
-    </p>
-    <div class="groups">
-      {#each groups as g}
-        <section class="group">
-          <h2 class="sec-title">{g.title}</h2>
-          <p class="note">{g.note}</p>
-          <ol>
-            {#each g.rows as x, i}
-              <li>
-                <span class="rank num">{i + 1}</span>
-                <ChampIcon id={x.champ} size={36} />
-                <span class="who">
-                  <span class="nm">{champions.name(x.champ)}</span>
-                  <span class="cls">{i18n.t.common.role[x.role] ?? x.role} · {x.tags.join(" · ") || i18n.t.common.noClass}</span>
-                </span>
-                <ForceBar value={x.kill2} se={x.se_kill2} max={MAX} confirmed={x.identificado} />
-                <span class="vals">
-                  <span class="num v" class:slack={!x.identificado}>{signed(x.kill2, 1)} pp</span>
-                  <span class="sub">± {(1.96 * x.se_kill2).toFixed(1)} · {t.ifWin}</span>
-                </span>
-              </li>
-            {/each}
-          </ol>
-        </section>
-      {/each}
-    </div>
+    <p class="meta label"><span class="dot"></span>{t.metaLine(game.gameMode, game.minutos)}</p>
+
+    <WinCondition title={i18n.t.winCon.titleLive} rival={toWC(rivals)} own={toWC(allies)} unit={i18n.t.winCon.perKills} />
+
+    <section class="all">
+      <h2 class="sec-title">{t.allTitle}</h2>
+      <div class="groups">
+        <div>
+          <h3 class="label">{t.rivalTitle}</h3>
+          <ol class="rows">{#each rivals as x, i}{@render row(x, i)}{/each}</ol>
+        </div>
+        <div>
+          <h3 class="label">{t.teamTitle}</h3>
+          <ol class="rows">{#each allies as x, i}{@render row(x, i)}{/each}</ol>
+        </div>
+      </div>
+    </section>
     <p class="fine">{i18n.server(game.nota)} {t.fine}</p>
   {/if}
 </section>
@@ -130,41 +123,39 @@
   .head h1 { font-size: clamp(44px, 5.5vw, 76px); }
   .head .prose { font-size: 14.5px; padding-bottom: 6px; }
   .head .btn { margin-bottom: 6px; }
-  .empty { display: grid; gap: 10px; padding: 32px 0; border-top: 1px solid var(--rule-strong); }
-  .preview { display: grid; gap: 10px; max-width: 760px; margin-top: 14px; opacity: 0.55; filter: grayscale(0.4); pointer-events: none; }
-  .preview figcaption { text-align: left; }
+  .empty { display: grid; gap: 14px; padding: 32px 0; border-top: 1px solid var(--rule-strong); }
+  .preview { display: grid; gap: 12px; max-width: 900px; margin-top: 10px; opacity: 0.6; filter: grayscale(0.4); pointer-events: none; }
   .center { min-height: 30vh; display: grid; place-items: center; }
   .err { color: var(--red-ink); font-size: 14px; max-width: 70ch; }
   .meta { display: flex; align-items: center; gap: 8px; color: var(--ink-2); }
   .meta .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: pulse 1.6s ease-in-out infinite; }
   @keyframes pulse { 50% { opacity: 0.3; } }
+
+  ol { list-style: none; padding: 0; }
+
+  .all { display: grid; gap: 14px; padding-top: 22px; border-top: 1px solid var(--rule-strong); }
   .groups { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 56px); }
-  .group { display: grid; gap: 8px; align-content: start; }
-  .note { font-size: 12.5px; color: var(--ink-3); }
-  ol { list-style: none; padding: 0; border-top: 1px solid var(--rule-strong); margin-top: 6px; }
-  li {
+  .groups h3 { margin-bottom: 6px; }
+  .rows { border-top: 1px solid var(--rule-strong); }
+  .row {
     display: grid;
-    grid-template-columns: 18px 36px minmax(110px, 1fr) minmax(110px, 1.2fr) 118px;
-    gap: 12px;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--rule);
+    grid-template-columns: 18px 32px minmax(110px, 1fr) minmax(100px, 1.2fr) 70px;
+    gap: 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--rule);
   }
   .rank { font-size: 11px; color: var(--ink-3); }
-  li:first-child .rank { color: var(--red-ink); }
   .who { display: grid; min-width: 0; line-height: 1.3; }
   .nm { font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cls { font-size: 11px; color: var(--ink-3); }
+  .cls { font-size: 11.5px; color: var(--ink-3); }
   .vals { display: grid; text-align: right; }
   .v { font-size: 15px; }
   .v.slack { color: var(--ink-3); }
-  .sub { font-size: 10.5px; color: var(--ink-3); }
+  .sub { font-size: 11px; color: var(--ink-3); }
   .fine { font-size: 12px; color: var(--ink-3); max-width: 90ch; }
 
   @media (max-width: 1100px) { .groups { grid-template-columns: minmax(0, 1fr); } }
   @media (max-width: 640px) {
     .head { grid-template-columns: 1fr; }
-    li { grid-template-columns: 18px 32px 1fr 96px; }
-    li :global(.fb) { grid-column: 2 / -1; grid-row: 2; }
+    .row { grid-template-columns: 18px 32px 1fr 64px; }
+    .row :global(.fb) { grid-column: 2 / -1; grid-row: 2; }
   }
 </style>

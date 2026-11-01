@@ -2,15 +2,19 @@
   import { app } from "../lib/state.svelte";
   import { REGIONS } from "../lib/api";
   import { i18n } from "../lib/i18n.svelte";
-  import Column from "../components/Column.svelte";
   import Loader from "../components/Loader.svelte";
   import MatchDetail from "../components/MatchDetail.svelte";
   import MatchList from "../components/MatchList.svelte";
-  import Pattern from "../components/Pattern.svelte";
+  import PatternNote from "../components/PatternNote.svelte";
   import Rod from "../components/Rod.svelte";
+  import Timeline from "../components/Timeline.svelte";
 
   const t = $derived(i18n.t);
   const current = $derived(app.route.matchId ?? app.profile?.matches[0]?.match_id ?? null);
+  const progressText = $derived(
+    app.progress ? t.matches.loadingGame(Math.min(app.progress.done + 1, app.progress.total), app.progress.total) : t.matches.findingAccount,
+  );
+  const progressFrac = $derived(app.progress ? app.progress.done / Math.max(1, app.progress.total) : 0);
 
   // ejemplo ilustrativo para la portada (no son datos reales)
   const SAMPLE = [
@@ -34,6 +38,7 @@
     <div class="copy">
       <h1 class="display">{t.onboard.titleLine1}<br />{t.onboard.titleLine2}</h1>
       <p class="lead">{t.onboard.lead}</p>
+      <p class="lead-fine">{t.onboard.leadFine}</p>
       <form class="load" onsubmit={submit}>
         <label for="rid-big" class="label">{t.onboard.yourRiotId}</label>
         <div class="row">
@@ -54,38 +59,45 @@
       </ul>
     </div>
     <figure class="sample">
-      <Column points={SAMPLE} bind:selected={sampleSel} duration={31} win={true} />
+      <Timeline points={SAMPLE} bind:selected={sampleSel} duration={31} win={true} />
       <figcaption class="label">{t.onboard.sampleCaption}</figcaption>
     </figure>
   </section>
 {:else if app.profileStatus === "loading" && !app.profile}
   <div class="center">
-    <Loader label={t.matches.loadingTitle} sub={t.matches.loadingSub} />
+    <Loader label={progressText} sub={t.matches.loadingSub} progress={app.progress ? progressFrac : null} />
   </div>
 {:else if app.profile}
-  {#if app.profile.degradado}
-    <p class="banner" role="status">
-      <b>{t.matches.offline}</b> — {i18n.server(app.profile.motivo ?? "")}. {t.matches.offlineShowingCached}
-    </p>
-  {/if}
-  {#if app.profileStatus === "loading"}
-    <p class="refresh label" role="status"><span class="spin"></span>{t.matches.refreshing}</p>
-  {/if}
-  {#if app.profileStatus === "error"}
-    <p class="banner" role="alert"><b>{t.matches.updateFailed}</b> — {app.profileError}</p>
-  {/if}
+  {#snippet notices()}
+    {#if app.profile?.degradado}
+      <p class="banner" role="status">
+        <b>{t.matches.offline}</b> — {i18n.server(app.profile.motivo ?? "")}. {t.matches.offlineShowingCached}
+      </p>
+    {/if}
+    {#if app.profileStatus === "loading"}
+      <div class="refresh" role="status">
+        <p class="label"><span class="spin"></span>{app.progress && (app.profile?.matches.length ?? 0) < app.progress.total ? progressText : t.matches.refreshing}</p>
+        {#if app.progress}<span class="bar" style:--f={progressFrac}></span>{/if}
+      </div>
+    {/if}
+    {#if app.profileStatus === "error"}
+      <p class="banner" role="alert"><b>{t.matches.updateFailed}</b> — {app.profileError}</p>
+    {/if}
+  {/snippet}
 
   {#if app.profile.matches.length === 0}
+    {@render notices()}
     <div class="center"><p class="prose">{t.matches.noRankedGames}</p></div>
   {:else}
     <div class="split" class:has-detail={!!app.route.matchId}>
       <aside class="rail">
-        {#if app.profile.patron}
-          <Pattern wins={app.profile.patron.wins} losses={app.profile.patron.losses} />
-        {/if}
         <MatchList matches={app.profile.matches} {current} onpick={(id) => app.go("partidas", id)} />
+        {#if app.profile.patron}
+          <PatternNote wins={app.profile.patron.wins} losses={app.profile.patron.losses} />
+        {/if}
       </aside>
       <div class="main">
+        {@render notices()}
         <a class="back label" href="#/partidas">{t.matches.backToAll}</a>
         {#if current}
           {#key current}<MatchDetail matchId={current} />{/key}
@@ -132,7 +144,10 @@
   }
   .banner b { color: var(--red-ink); font-weight: 600; }
 
-  .refresh { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; color: var(--ink-2); }
+  .refresh { display: grid; gap: 8px; margin-bottom: 18px; max-width: 520px; }
+  .refresh .label { display: flex; align-items: center; gap: 10px; color: var(--ink-2); }
+  .refresh .bar { height: 2px; background: linear-gradient(var(--red), var(--red)) left / calc(var(--f) * 100%) 100% no-repeat, var(--rule); transition: background-size 0.4s var(--ease-out); }
+  .lead-fine { font-size: 13px; color: var(--ink-3); max-width: 60ch; margin-top: -12px; }
   .spin { width: 18px; height: 1px; background: var(--red); transform-origin: left; animation: tense 1.2s var(--ease-out) infinite alternate; }
   @keyframes tense { from { transform: scaleX(0.2); } to { transform: scaleX(1); } }
 

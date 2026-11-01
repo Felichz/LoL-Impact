@@ -59,13 +59,49 @@ export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 
+// fixed Spanish text, like the backend's: translated on the client via i18n.server()
+const NO_SERVER = "No hay conexión con el servidor.";
+
+export type ProfileEvent =
+  | { type: "start"; total: number }
+  | { type: "match"; done: number; total: number; entry: MatchSummary | null }
+  | { type: "done"; profile: Profile }
+  | { type: "error"; status: number; detail: string };
+
+/** Streams the profile as NDJSON progress events; resolves with the final profile. */
+async function profileStream(riotId: string, region: string, onEvent: (e: ProfileEvent) => void): Promise<Profile> {
+  let r: Response;
+  try {
+    r = await fetch(`/api/profile/stream?riot_id=${encodeURIComponent(riotId)}&region=${region}`);
+  } catch {
+    throw new ApiError(0, NO_SERVER);
+  }
+  if (!r.ok || !r.body) throw new ApiError(r.status, r.statusText);
+  const reader = r.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buf = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (value) buf += value;
+    let nl: number;
+    while ((nl = buf.indexOf("\n")) >= 0) {
+      const line = buf.slice(0, nl).trim();
+      buf = buf.slice(nl + 1);
+      if (!line) continue;
+      const ev = JSON.parse(line) as ProfileEvent;
+      if (ev.type === "error") throw new ApiError(ev.status, ev.detail);
+      if (ev.type === "done") return ev.profile;
+      onEvent(ev);
+    }
+    if (done) throw new ApiError(0, NO_SERVER);
+  }
+}
+
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
   let r: Response;
   try {
     r = await fetch(url, init);
   } catch {
-    // fixed Spanish text: translated on the client via i18n.server()
-    throw new ApiError(0, "No hay conexión con el servidor local (¿está corriendo uvicorn en el puerto 8000?).");
+    throw new ApiError(0, NO_SERVER);
   }
   if (!r.ok) {
     let msg = r.statusText;
@@ -77,8 +113,7 @@ async function req<T>(url: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   health: () => req<Health>("/api/health"),
-  profile: (riotId: string, region: string) =>
-    req<Profile>(`/api/profile?riot_id=${encodeURIComponent(riotId)}&region=${region}`),
+  profileStream,
   match: (region: string, id: string) => req<MatchDetail>(`/api/match/${region}/${id}`),
   draft: (blue: Partial<Record<Role, string>>, red: Partial<Record<Role, string>>) =>
     req<DraftResult>("/api/draft", {

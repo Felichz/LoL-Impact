@@ -9,14 +9,6 @@
   const nextTheme = { system: "light", light: "dark", dark: "system" } as const;
   const nextLang: Record<Lang, Lang> = { en: "es", es: "en" };
 
-  const keys = $derived(app.health?.claves_vivas ?? 0);
-  const status = $derived(
-    app.healthError ? { on: false, text: t.header.serverDown }
-    : !app.health ? { on: false, text: t.header.connecting }
-    : keys > 0 ? { on: true, text: t.header.apiKeys(keys) }
-    : { on: false, text: t.header.noKeysCached },
-  );
-
   function submit(e: SubmitEvent) {
     e.preventDefault();
     if (app.route.view !== "partidas") app.go("partidas");
@@ -42,8 +34,8 @@
     {/each}
   </nav>
 
-  <div class="status" class:off={!status.on} title={app.health ? t.header.statusTitle(app.health.claves_vivas, app.health.claves_muertas, app.health.modelo) : ""}>
-    <span class="dot"></span>{status.text}
+  <div class="status" role="status">
+    {#if app.healthError}<span class="dot"></span>{t.header.serverDown}{/if}
   </div>
 
   <form class="profile" onsubmit={submit} class:hidden={app.route.view === "partidas" && !app.profile && app.profileStatus !== "loading"}>
@@ -151,9 +143,8 @@
     color: var(--ink-2);
     white-space: nowrap;
   }
-  .status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
-  .status.off .dot { background: transparent; box-shadow: inset 0 0 0 1.5px var(--red); }
-  .status.off { color: var(--red-ink); }
+  .status { color: var(--red-ink); }
+  .status .dot { width: 7px; height: 7px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--red); }
 
   .profile { display: flex; gap: 6px; }
   .profile.hidden { display: none; }

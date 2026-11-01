@@ -1,5 +1,3 @@
-import { i18n } from "./i18n.svelte";
-
 export const sign = (v: number) => (v > 0 ? "+" : v < 0 ? "−" : "");
 export const signed = (v: number, d = 0) => {
   const r = Number(Math.abs(v).toFixed(d));
@@ -21,10 +19,7 @@ export function interval(lo95: number, hi95: number, z: number) {
   return [sigm(mid - z * se), sigm(mid + z * se)] as const;
 }
 
-/** Match state at a minute, based on where the range falls. */
-export function verdict(lo: number, hi: number) {
-  const t = i18n.t.matchDetail;
-  if (lo > 0.5) return { key: "favor" as const, word: t.verdict.favor, detail: t.verdictDetail.favor };
-  if (hi < 0.5) return { key: "against" as const, word: t.verdict.against, detail: t.verdictDetail.against };
-  return { key: "unclear" as const, word: t.verdict.unclear, detail: t.verdictDetail.unclear };
-}
+/** Win-chance points shown as "+18%" (they are percentage points of win probability). */
+export const chance = (pp: number, d = 0) => `${signed(pp, d)}%`;
+/** Gold lead in thousands: "+2.2k". */
+export const goldK = (k: number) => `${signed(k, 1)}k`;

@@ -1,12 +1,14 @@
 <script lang="ts">
   import { api, ROLES, type DraftEntry, type DraftResult, type Role } from "../lib/api";
   import { champions } from "../lib/champions.svelte";
-  import { signed } from "../lib/format";
+  import { chance } from "../lib/format";
   import { i18n } from "../lib/i18n.svelte";
   import ChampPicker from "../components/ChampPicker.svelte";
   import ForceBar from "../components/ForceBar.svelte";
   import RoleGlyph from "../components/RoleGlyph.svelte";
   import Tip from "../components/Tip.svelte";
+  import WinCondition from "../components/WinCondition.svelte";
+  import type { WCEntry } from "../lib/story";
 
   type Picks = Record<Role, string>;
   const empty = (): Picks => ({ TOP: "", JUNGLE: "", MIDDLE: "", BOTTOM: "", UTILITY: "" });
@@ -37,22 +39,20 @@
   const find = (list: DraftEntry[] | undefined, role: Role, champ: string) =>
     list?.find((x) => x.role === role && x.champ === champ);
   const MAX = 30;
-  const danger = $derived(result ? [...result.red].sort((a, b) => b.pp_por_1000g - a.pp_por_1000g) : []);
 
   const sides = $derived([
-    { key: "blue" as const, title: t.yourTeam, hint: t.yourTeamHint },
-    { key: "red" as const, title: t.rival, hint: t.rivalHint },
+    { key: "blue" as const, title: t.yourTeam },
+    { key: "red" as const, title: t.rival },
   ]);
+
+  const toWC = (xs: DraftEntry[] | undefined): WCEntry[] =>
+    (xs ?? []).map((x) => ({ champ: x.champ, role: x.role, tags: x.tags, value: x.pp_por_1000g, se: x.se, sure: x.identificado }));
 </script>
 
 <section class="draft">
   <header class="head">
     <h1 class="display">{t.title}</h1>
-    <p class="prose">
-      {t.introStart}
-      <Tip text={t.ppTip}>
-        <b>{t.ppTipLabel}</b></Tip> {t.introEnd}
-    </p>
+    <p class="prose">{t.intro}</p>
     <button class="reset btn ghost" type="button" onclick={() => { blue = empty(); red = empty(); }} disabled={!taken.length}>{t.clearDraft}</button>
   </header>
 
@@ -60,7 +60,7 @@
     {#each sides as s}
       {@const picks = s.key === "blue" ? blue : red}
       <div class="team">
-        <h2 class="sec-title">{s.title} <span class="hint">— {s.hint}</span></h2>
+        <h2 class="sec-title">{s.title}</h2>
         <div class="slots">
           {#each ROLES as role}
             {@const e = picks[role] ? find(result?.[s.key], role, picks[role]) : undefined}
@@ -74,8 +74,8 @@
               <div class="val">
                 {#if e}
                   <ForceBar value={e.pp_por_1000g} se={e.se} max={MAX} confirmed={e.identificado} />
-                  <span class="num v" class:slack={!e.identificado}>{signed(e.pp_por_1000g, 1)}</span>
-                  <span class="cls">{e.tags.join(" · ") || t.noClass} · {e.identificado ? t.confirmed : t.indicative}</span>
+                  <span class="num v" class:slack={!e.identificado}>{chance(e.pp_por_1000g)}</span>
+                  <span class="cls">{t.per1000} · {e.tags.join(" · ") || t.noClass}{#if !e.identificado}{" · "}{i18n.t.common.notSure}<Tip text={i18n.t.common.notSureTip} />{/if}</span>
                 {:else if picks[role]}
                   <span class="cls">{busy ? t.evaluating : ""}</span>
                 {/if}
@@ -89,20 +89,8 @@
 
   {#if error}<p class="err" role="alert">{error}</p>{/if}
 
-  {#if danger.length}
-    <section class="rank" aria-labelledby="rk-h">
-      <h2 id="rk-h" class="sec-title">{t.dangerRank}</h2>
-      <ol>
-        {#each danger as d, i}
-          <li>
-            <span class="pos num">{i + 1}</span>
-            <span class="nm">{champions.name(d.champ)}</span>
-            <span class="num">{signed(d.pp_por_1000g, 1)} pp</span>
-            <span class="num se">± {(1.96 * d.se).toFixed(1)}</span>
-          </li>
-        {/each}
-      </ol>
-    </section>
+  {#if result && (result.red.length || result.blue.length)}
+    <WinCondition title={i18n.t.winCon.titleDraft} rival={toWC(result.red)} own={toWC(result.blue)} unit={i18n.t.winCon.perGold} />
   {/if}
 
   {#if result}<p class="fine">{i18n.server(result.nota)}.</p>{/if}
@@ -116,7 +104,6 @@
   .reset { margin-bottom: 6px; }
   .teams { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 56px); }
   .team { display: grid; gap: 14px; align-content: start; }
-  .hint { color: var(--ink-3); text-transform: none; letter-spacing: 0; font-family: var(--font-sans); font-size: 13px; font-weight: 400; }
   .slots { display: grid; border-top: 1px solid var(--rule-strong); }
   .slot {
     display: grid;
@@ -132,12 +119,6 @@
   .v.slack { color: var(--ink-3); }
   .cls { grid-column: 1 / -1; font-size: 11px; color: var(--ink-3); font-family: var(--font-mono); font-stretch: 87.5%; }
   .err { color: var(--red-ink); font-size: 13.5px; }
-  .rank { display: grid; gap: 12px; max-width: 520px; }
-  .rank ol { list-style: none; padding: 0; display: grid; }
-  .rank li { display: grid; grid-template-columns: 28px 1fr auto 60px; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid var(--rule); }
-  .rank .pos { color: var(--red-ink); font-size: 12px; }
-  .rank .nm { font-weight: 550; }
-  .rank .se { color: var(--ink-3); font-size: 11px; text-align: right; }
   .fine { font-size: 12px; color: var(--ink-3); }
 
   @media (max-width: 1100px) {

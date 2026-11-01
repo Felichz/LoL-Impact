@@ -34,6 +34,8 @@ class AppState {
   profileStatus = $state<"idle" | "loading" | "ok" | "error">("idle");
   profileError = $state("");
   loadedName = $state("");   // nombre (sin #tag) del perfil cargado
+  /** null while looking up the account; then games read so far out of the total */
+  progress = $state<{ done: number; total: number } | null>(null);
 
   constructor() {
     window.addEventListener("hashchange", () => (this.route = parseHash()));
@@ -62,30 +64,47 @@ class AppState {
     save("region", this.region);
     this.profileStatus = "loading";
     this.profileError = "";
+    this.progress = null;
+    const name = rid.split("#")[0].trim();
     // the Riot API can take almost a minute: show the last saved view meanwhile
     const key = `profile:${rid.toLowerCase()}:${this.region}`;
     if (!this.profile) {
       try {
         const cached = JSON.parse(load(key) || "null") as Profile | null;
-        if (cached) { this.profile = cached; this.loadedName = rid.split("#")[0].trim(); }
+        if (cached) { this.profile = cached; this.loadedName = name; }
       } catch { /* unreadable cache: ignored */ }
     }
+    // with nothing saved, games show up one by one as they arrive
+    const partial = !this.profile;
+    const openFirst = (id?: string) => {
+      if (id && this.route.view === "partidas" && !this.route.matchId) this.go("partidas", id);
+    };
     try {
-      const p = await api.profile(rid, this.region);
+      const p = await api.profileStream(rid, this.region, (ev) => {
+        if (ev.type === "start") this.progress = { done: 0, total: ev.total };
+        if (ev.type !== "match") return;
+        this.progress = { done: ev.done, total: ev.total };
+        if (!partial || !ev.entry) return;
+        if (!this.profile) {
+          this.profile = { riot_id: rid, api_viva: true, matches: [], patron: null };
+          this.loadedName = name;
+        }
+        this.profile.matches.push(ev.entry);
+        openFirst(ev.entry.match_id);
+      });
       this.profile = p;
       save(key, JSON.stringify(p));
-      this.loadedName = rid.split("#")[0].trim();
+      this.loadedName = name;
       this.profileStatus = "ok";
-      const first = p.matches[0]?.match_id;
-      if (this.route.view === "partidas" && !this.route.matchId && first) this.go("partidas", first);
+      this.progress = null;
+      openFirst(p.matches[0]?.match_id);
     } catch (e) {
+      this.progress = null;
       this.profileStatus = "error";
       const t = i18n.t;
       this.profileError =
         e instanceof ApiError && e.status === 404
-          ? (i18n.lang === "es"
-              ? `No encontramos partidas para ${rid} en ${this.region}. Revisa el Riot ID y la región; si las claves de la API caducaron, solo verás lo que ya esté en caché.`
-              : `We couldn't find games for ${rid} in ${this.region}. Check the Riot ID and region; if the API keys expired, you'll only see what's already cached.`)
+          ? t.matches.notFound(rid, this.region)
           : e instanceof ApiError ? i18n.server(e.message)
           : e instanceof Error ? e.message : t.common.unknownError;
     }

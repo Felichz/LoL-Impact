@@ -51,8 +51,7 @@ document.documentElement.lang = i18n.lang;
    backend produces (notes + HTTPException details). The backend always
    answers in Spanish; this maps the known ones to English on the client. */
 const SERVER_EN: Record<string, string> = {
-  "No hay conexión con el servidor local (¿está corriendo uvicorn en el puerto 8000?).":
-    "Can't reach the local server (is uvicorn running on port 8000?).",
+  "No hay conexión con el servidor.": "Can't reach the server.",
   "sin datos: ni API viva ni partidas en cache": "no data: no live API and no cached games",
   "partida no encontrada ni cacheada": "game not found and not cached",
   "timeline no disponible (claves muertas y sin cache)": "timeline unavailable (keys expired and not cached)",
